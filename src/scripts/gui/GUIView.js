@@ -1,97 +1,105 @@
-import * as THREE from 'three';
-import Tweakpane from 'tweakpane';
-import Stats from 'stats.js';
+import * as THREE from "three"
+import Tweakpane from "tweakpane"
+import Stats from "stats.js"
 
 export default class GUIView {
+  constructor(app) {
+    this.app = app
 
-	constructor(app) {
-		this.app = app;
+    this.postProcessing = false
+    this.density = 1
+    this.renderOptions = { native: 0, "post processing": 1 }
+    this.renderSelected = 0
+    this.color = "#0000FF"
+    this.wireframe = true
 
-		this.postProcessing = false;
-		this.density = 1;
-		this.renderOptions = { 'native': 0 , 'post processing': 1 };
-		this.renderSelected = 0;
-		this.color = '#0000FF';
-		this.wireframe = true;
+    this.initPane()
+    this.initStats()
 
-		this.initPane();
-		this.initStats();
+    this.enable()
+  }
 
-		this.enable();
-	}
+  initPane() {
+    let folder
 
-	initPane() {
-		let folder;
-		
-		this.pane = new Tweakpane();
-		// this.pane.containerElem_.classList.add('full');
+    this.pane = new Tweakpane()
+    // this.pane.containerElem_.classList.add('full');
 
-		folder = this.pane.addFolder({ title: 'Parameters' });
-		folder.addInput(this, 'renderSelected', { label: 'render', options: this.renderOptions }).on('change', this.onRenderChange.bind(this));
-		folder.addInput(this, 'wireframe').on('change', this.onWireframeChange.bind(this));
-		folder.addInput(this, 'density', { label: 'density', min: 0, max: 4, step: 1 }).on('change', this.onDensityChange.bind(this));
-		folder.addInput(this, 'color').on('change', this.onColorChange.bind(this));
-	}
+    folder = this.pane.addFolder({ title: "Parameters" })
+    folder
+      .addInput(this, "renderSelected", {
+        label: "render",
+        options: this.renderOptions,
+      })
+      .on("change", this.onRenderChange.bind(this))
+    folder
+      .addInput(this, "wireframe")
+      .on("change", this.onWireframeChange.bind(this))
+    folder
+      .addInput(this, "density", { label: "density", min: 0, max: 4, step: 1 })
+      .on("change", this.onDensityChange.bind(this))
+    folder.addInput(this, "color").on("change", this.onColorChange.bind(this))
+  }
 
-	initStats() {
-		this.stats = new Stats();
-		document.body.appendChild(this.stats.dom);
-	}
+  initStats() {
+    this.stats = new Stats()
+    document.body.appendChild(this.stats.dom)
+  }
 
-	// ---------------------------------------------------------------------------------------------
-	// PUBLIC
-	// ---------------------------------------------------------------------------------------------
+  // ---------------------------------------------------------------------------------------------
+  // PUBLIC
+  // ---------------------------------------------------------------------------------------------
 
-	enable() {
-		this.pane.hidden = false;
-		if (this.stats) this.stats.dom.style.display = '';
+  enable() {
+    this.pane.hidden = false
+    if (this.stats) this.stats.dom.style.display = ""
 
-		if (!this.pane.containerElem_.classList.contains('full')) return;
-		this.app.el.style.width = `calc(100vw - ${this.pane.containerElem_.offsetWidth}px)`;
-		this.app.resize();
-	}
+    if (!this.pane.containerElem_.classList.contains("full")) return
+    this.app.el.style.width = `calc(100vw - ${this.pane.containerElem_.offsetWidth}px)`
+    this.app.resize()
+  }
 
-	disable() {
-		this.pane.hidden = true;
-		if (this.stats) this.stats.dom.style.display = 'none';
+  disable() {
+    this.pane.hidden = true
+    if (this.stats) this.stats.dom.style.display = "none"
 
-		if (!this.pane.containerElem_.classList.contains('full')) return;
-		this.app.el.style.width = ``;
-		this.app.resize();
-	}
+    if (!this.pane.containerElem_.classList.contains("full")) return
+    this.app.el.style.width = ``
+    this.app.resize()
+  }
 
-	toggle() {
-		if (!this.pane.hidden) this.disable();
-		else this.enable();
-	}
+  toggle() {
+    if (!this.pane.hidden) this.disable()
+    else this.enable()
+  }
 
-	onRenderChange(value) {
-		if (!this.app.webgl.composer) return;
-		this.app.webgl.composer.enabled = value;
-	}
+  onRenderChange(value) {
+    if (!this.app.webgl.composer) return
+    this.app.webgl.composer.enabled = value
+  }
 
-	onDensityChange(value) {
-		const obj = this.app.webgl.object3D;
-		const geometry = new THREE.IcosahedronBufferGeometry(50, value);
-		const material = obj.material;
+  onDensityChange(value) {
+    const obj = this.app.webgl.object3D
+    const geometry = new THREE.IcosahedronBufferGeometry(50, value)
+    const material = obj.material
 
-		obj.geometry.dispose();
-		obj.parent.remove(obj);
+    obj.geometry.dispose()
+    obj.parent.remove(obj)
 
-		this.app.webgl.object3D = new THREE.Mesh(geometry, material);
-		this.app.webgl.scene.add(this.app.webgl.object3D);
-	}
+    this.app.webgl.object3D = new THREE.Mesh(geometry, material)
+    this.app.webgl.scene.add(this.app.webgl.object3D)
+  }
 
-	onColorChange(value) {
-		this.app.webgl.object3D.material.uniforms.uColor.value.set(value);
-	}
+  onColorChange(value) {
+    this.app.webgl.object3D.material.uniforms.uColor.value.set(value)
+  }
 
-	onWireframeChange(value) {
-		this.app.webgl.object3D.material.wireframe = value;
-	}
+  onWireframeChange(value) {
+    this.app.webgl.object3D.material.wireframe = value
+  }
 
-	onPostProcessingChange(value) {
-		if (!this.app.webgl.composer) return;
-		this.app.webgl.composer.enabled = value;
-	}
+  onPostProcessingChange(value) {
+    if (!this.app.webgl.composer) return
+    this.app.webgl.composer.enabled = value
+  }
 }
