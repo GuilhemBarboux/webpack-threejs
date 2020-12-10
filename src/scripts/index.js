@@ -26,9 +26,12 @@ const preload = () => {
       return p
     })
   )
-    .then(([app]) => {
+    .then(([app, ...items]) => {
       window.app = new app.default()
-      window.app.init()
+      return window.app.init()
+    })
+    .then(() => {
+      console.log("ready")
     })
     .catch((e) => {
       console.log("preload", e)

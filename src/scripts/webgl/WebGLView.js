@@ -1,6 +1,7 @@
 import * as THREE from "three"
 import glslify from "glslify"
 import AsyncPreloader from "async-preloader"
+import ModelLoader from "./objects/ModelLoader"
 
 import {
   EffectComposer,
@@ -17,9 +18,13 @@ import { TrackballControls } from "three/examples/jsm/controls/TrackballControls
 export default class WebGLView {
   constructor(app) {
     this.app = app
+    this.debug = true
+  }
 
+  async init() {
+    this.initLoader()
     this.initThree()
-    this.initObject()
+    await this.initObject()
     this.initControls()
     this.initPostProcessing()
   }
@@ -33,11 +38,21 @@ export default class WebGLView {
       1,
       10000
     )
-    this.camera.position.z = 300
+    this.camera.position.z = 50
 
     this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true })
 
     this.clock = new THREE.Clock()
+  }
+
+  // Interface between async preloader and threejs
+  initLoader() {
+    this.manager = new THREE.LoadingManager()
+    this.manager.setURLModifier((url) => {
+      if (this.debug) console.log("Manager", "load :", url)
+      return URL.createObjectURL(AsyncPreloader.items.get(url))
+    })
+    this.loader = new ModelLoader(this.manager)
   }
 
   initControls() {
@@ -49,8 +64,8 @@ export default class WebGLView {
     this.trackball.enabled = true
   }
 
-  initObject() {
-    const geometry = new THREE.IcosahedronBufferGeometry(50, 1)
+  async initObject() {
+    const geometry = new THREE.IcosahedronBufferGeometry(2, 1)
 
     const material = new THREE.ShaderMaterial({
       uniforms: {
@@ -61,8 +76,34 @@ export default class WebGLView {
       wireframe: true,
     })
 
+    // Lights
+    const hemiLight = new THREE.HemisphereLight(0xffffff, 0x444444)
+    hemiLight.position.set(0, 200, 0)
+    this.scene.add(hemiLight)
+
+    const dirLight = new THREE.DirectionalLight(0xffffff)
+    dirLight.position.set(0, 200, 100)
+    dirLight.castShadow = true
+    dirLight.shadow.camera.top = 180
+    dirLight.shadow.camera.bottom = -100
+    dirLight.shadow.camera.left = -120
+    dirLight.shadow.camera.right = 120
+    this.scene.add(dirLight)
+
+    // FBX model
+    this.fbx = await this.loader.loadFBX("goal-model")
+    this.fbx.scale.set(2, 2, 2)
+    this.fbx.position.set(25, 0, 0)
+
+    // GLTF model
+    this.gltf = await this.loader.loadGLTF("boombox")
+    this.gltf.scene.scale.set(100, 100, 100)
+
+    // Geometry
     this.object3D = new THREE.Mesh(geometry, material)
-    this.scene.add(this.object3D)
+    this.object3D.position.set(-25, 0, 0)
+
+    this.scene.add(this.object3D, this.fbx, this.gltf.scene)
   }
 
   initPostProcessing() {

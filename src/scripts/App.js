@@ -8,16 +8,17 @@ export default class App {
     this.el = document.querySelector(".container")
   }
 
-  init() {
-    this.initWebGL()
+  async init() {
+    await this.initWebGL()
     this.initGUI()
     this.addListeners()
     this.animate()
     this.resize()
   }
 
-  initWebGL() {
+  async initWebGL() {
     this.webgl = new WebGLView(this)
+    await this.webgl.init()
     this.el.appendChild(this.webgl.renderer.domElement)
   }
 

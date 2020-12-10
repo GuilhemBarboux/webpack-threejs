@@ -1,6 +1,57 @@
 {
   "items": [
-    { "id": "smaa-area", "src": "assets/images/smaa-area.png" },
-    { "id": "smaa-search", "src": "assets/images/smaa-search.png" }
+    {
+      "id": "smaa-area",
+      "src": "assets/images/smaa-area.png"
+    },
+    {
+      "id": "smaa-search",
+      "src": "assets/images/smaa-search.png"
+    },
+    {
+      "id": "goal-model",
+      "src": "assets/models/goal/Gardien.FBX",
+      "loader": "Blob"
+    },
+    {
+      "id": "./Goal.jpg",
+      "src": "assets/models/goal/Goal.jpg",
+      "loader": "Blob"
+    },
+    {
+      "id": "./GoalNM.jpg",
+      "src": "assets/models/goal/GoalNM.jpg",
+      "loader": "Blob"
+    },
+    {
+      "id": "boombox",
+      "src": "assets/models/BoomBox/glTF/BoomBox.json",
+      "loader": "Blob"
+    },
+    {
+      "id":"./BoomBox.bin",
+      "src": "assets/models/BoomBox/glTF/BoomBox.bin",
+      "loader": "Blob"
+    },
+    {
+      "id": "./BoomBox_baseColor.png",
+      "src":  "assets/models/BoomBox/glTF/BoomBox_baseColor.png",
+      "loader":  "Blob"
+    },
+    {
+      "id": "./BoomBox_occlusionRoughnessMetallic.png",
+      "src":  "assets/models/BoomBox/glTF/BoomBox_occlusionRoughnessMetallic.png",
+      "loader":  "Blob"
+    },
+    {
+      "id": "./BoomBox_normal.png",
+      "src":  "assets/models/BoomBox/glTF/BoomBox_normal.png",
+      "loader":  "Blob"
+    },
+    {
+      "id": "./BoomBox_emissive.png",
+      "src":  "assets/models/BoomBox/glTF/BoomBox_emissive.png",
+      "loader":  "Blob"
+    }
   ]
 }

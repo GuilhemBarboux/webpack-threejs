@@ -16,8 +16,10 @@
   "sideEffects": false,
   "scripts": {
     "format": "prettier --write \"**/*.{js,jsx,json,md}\"",
-    "build": "webpack -p --config config/prod.js",
-    "start": "webpack-dev-server --config config/dev.js"
+    "build": "webpack --config config/prod.js",
+    "start": "webpack serve --config config/dev.js",
+    "predeploy": "webpack --output-public-path=/webpack-threejs/ --config config/prod.js",
+    "deploy": "gh-pages -d dist"
   },
   "dependencies": {
     "async-preloader": "^4.9.2",
@@ -43,6 +45,7 @@
     "eslint-plugin-prettier": "^3.1.2",
     "extract-loader": "^5.1.0",
     "file-loader": "^6.1.1",
+    "gh-pages": "^3.1.0",
     "glslify": "^7.1.1",
     "glslify-import-loader": "^0.1.2",
     "glslify-loader": "^2.0.0",
