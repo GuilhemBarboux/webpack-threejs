@@ -3,6 +3,7 @@ const webpack = require("webpack")
 const { CleanWebpackPlugin } = require("clean-webpack-plugin")
 const CopyWebpackPlugin = require("copy-webpack-plugin")
 const HtmlWebpackPlugin = require("html-webpack-plugin")
+const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin');
 
 const __root = path.resolve(__dirname, "../")
 
@@ -10,7 +11,7 @@ module.exports = {
   entry: {
     index: [
       "@babel/polyfill",
-      "./src/scripts/index.js",
+      "./src/scripts/index.ts",
       "./src/styles/main.scss",
     ],
   },
@@ -22,6 +23,11 @@ module.exports = {
   module: {
     rules: [
       {
+        test: /\.tsx?$/,
+        use: "ts-loader",
+        exclude: /node_modules/,
+      },
+      /*{
         test: /\.js$/,
         use: {
           loader: "babel-loader",
@@ -30,8 +36,8 @@ module.exports = {
             plugins: ["@babel/plugin-syntax-dynamic-import"],
           },
         },
-        exclude: /node_modules\/(?!(postprocessing)\/).*/,
-      },
+        exclude: /node_modules\/(?!(postprocessing)\/).*!/,
+      },*/
       {
         test: /\.(glsl|frag|vert)$/,
         use: [
@@ -75,7 +81,13 @@ module.exports = {
     ],
   },
   resolve: {
-    extensions: [".js", ".scss"],
+    extensions: [".tsx", ".ts", ".js", ".scss"],
+    alias: {
+      "@core": path.resolve(__root, 'src/scripts/_core/'),
+    },
+    plugins: [
+      new TsconfigPathsPlugin()
+    ]
   },
   plugins: [
     new CleanWebpackPlugin(),

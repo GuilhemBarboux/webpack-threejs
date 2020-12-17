@@ -2,17 +2,24 @@ import ready from "domready"
 import AsyncPreloader from "async-preloader"
 
 // import App from './App';
-import { fetchJSON } from "./utils/fetch.utils"
+import { fetchJSON } from "@core/utils/fetch.utils"
 
-let manifest
+declare global {
+  interface Window {
+    app: any
+  }
+}
+
+let manifest: any
 
 const preload = () => {
   const items = manifest.items
 
-  const pItems = items.map((item) => AsyncPreloader.loadItem(item))
+  const pItems = items.map((item: any) => AsyncPreloader.loadItem(item))
   const pApp = import(/* webpackChunkName: 'app' */ "./App")
   const pProgress = [pApp, ...pItems]
 
+  // Progress
   let loadedCount = 0
   let progress = 0
 
@@ -26,12 +33,12 @@ const preload = () => {
       return p
     })
   )
-    .then(([app, ...items]) => {
-      window.app = new app.default()
-      return window.app.init()
+    .then(([{ default: App }, ...items]) => {
+      window.app = new App()
+      return window.app.load()
     })
     .then(() => {
-      console.log("ready")
+      console.log("Loaded")
     })
     .catch((e) => {
       console.log("preload", e)

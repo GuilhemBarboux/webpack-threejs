@@ -3,18 +3,23 @@ import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader"
 import { LoadingManager } from "three"
 
 class LoaderDecorator {
-  constructor(Loader) {
+  private loader: any
+
+  constructor(Loader: any) {
     this.loader = Loader
   }
 
-  async load(source, onProgress = () => {}) {
+  async load(source: string, onProgress = () => {}) {
     return new Promise((resolve, reject) => {
       this.loader.load(source, resolve, onProgress, reject)
     })
   }
 }
 
-export default class ModelLoader {
+export default class WebGLLoader {
+  private readonly manager: LoadingManager
+  private readonly loaders: { [index: string]: any }
+
   constructor(manager = new LoadingManager()) {
     this.manager = manager
     this.loaders = {}
@@ -30,7 +35,7 @@ export default class ModelLoader {
     return loader.load(source, onProgress)
   }
 
-  getLoader(type = "GLTF") {
+  getLoader(type: string = "GLTF") {
     let loader = this.loaders[type]
 
     if (!loader) {
