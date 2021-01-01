@@ -18,23 +18,24 @@ class Inputs extends InputManager {
     this.btn = document.getElementById("btn")
     this.joystick = document.getElementById("joystick")
     console.log(this.joystick)
+
     // Devices events you need
     this.addKeyboard(
       { event: "keydown", target: document },
       { event: "keyup", target: document }
     )
 
-    /*this.addMouse(
+    this.addMouse(
       { event: "mousedown", target: root },
       { event: "mouseup", target: root },
       { event: "click", target: root },
       { event: "click", target: this.btn },
       { event: "contextmenu", target: root }
-    )*/
+    )
 
-    if (isTouch()) {
+    /*if (isTouch()) {
       this.addTouch({ event: "touchmove", target: this.joystick })
-    }
+    }*/
 
     // Actions events you need
     this.onJump = this.registerAction("jump", {
