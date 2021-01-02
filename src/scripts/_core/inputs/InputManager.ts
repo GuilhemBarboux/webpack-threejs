@@ -1,12 +1,26 @@
 import debug from "@core/Debug"
-import { EMPTY, fromEvent, merge, Observable } from "rxjs"
-import { distinctUntilChanged, filter, map, share, tap } from "rxjs/operators"
+import { EMPTY, from, fromEvent, merge, Observable } from "rxjs"
+import {
+  concatMap,
+  distinctUntilChanged,
+  filter,
+  first,
+  map,
+  share,
+  takeUntil,
+  tap,
+} from "rxjs/operators"
 import { EventListenerOptions } from "rxjs/internal/observable/fromEvent"
 
 enum MouseKeys {
   "leftMouse" = "leftMouse",
   "middleMouse" = "middleMouse",
   "rightMouse" = "rightMouse",
+}
+
+enum TouchKeys {
+  "drag" = "drag",
+  "drop" = "drop",
 }
 
 const MouseButtonKey = [
@@ -65,7 +79,6 @@ class InputManager {
         key: ev.key,
       })),
       distinctUntilChanged((p, c) => c.key === p.key && c.type === p.type),
-      // tap((v: InputValue) => this.debug && console.log("keyboard", v.type, v)),
       share()
     )
   }
@@ -84,22 +97,101 @@ class InputManager {
         y: ev.clientY,
         key: MouseButtonKey[ev.button],
       })),
-      // tap((v: InputValue) => this.debug && console.log("mouse", v.type, v)),
       share()
     )
   }
 
-  public addTouch(...touchEvents: InputEvent[]) {
-    this.touch = merge(
-      ...touchEvents.map((ie) => fromEvent<TouchEvent>(ie.target, ie.event))
-    ).pipe(
-      map((ev) => ({
+  public addTouch(...touchTargets: EventTarget[]) {
+    const mouseEventToCoordinate = (ev: MouseEvent) => {
+      ev.preventDefault()
+      return {
+        ev,
+        x: ev.clientX,
+        y: ev.clientY,
+      }
+    }
+
+    const touchEventToCoordinate = (ev: TouchEvent) => {
+      ev.preventDefault()
+      return {
+        ev,
+        x: ev.changedTouches[0].clientX,
+        y: ev.changedTouches[0].clientY,
+      }
+    }
+
+    // Events
+    const starts = merge(
+      merge(...touchTargets.map((t) => fromEvent(t, "mousedown"))).pipe(
+        map(mouseEventToCoordinate)
+      ),
+      merge(...touchTargets.map((t) => fromEvent(t, "touchstart"))).pipe(
+        map(touchEventToCoordinate)
+      )
+    )
+    const moves = merge(
+      merge(...touchTargets.map((t) => fromEvent(t, "mousemove"))).pipe(
+        map(mouseEventToCoordinate)
+      ),
+      merge(...touchTargets.map((t) => fromEvent(t, "touchmove"))).pipe(
+        map(touchEventToCoordinate)
+      )
+    )
+    const ends = merge(
+      merge(...touchTargets.map((t) => fromEvent(t, "mouseup"))).pipe(
+        map(mouseEventToCoordinate)
+      ),
+      merge(...touchTargets.map((t) => fromEvent(t, "touchend"))).pipe(
+        map(touchEventToCoordinate)
+      )
+    )
+
+    // Drag
+    const drags = starts.pipe(
+      concatMap((dragStartEvent) =>
+        moves.pipe(
+          takeUntil(ends),
+          map((dragEvent) => {
+            const x = dragEvent.x - dragStartEvent.x
+            const y = dragEvent.y - dragStartEvent.y
+            return {
+              ev: dragEvent.ev,
+              x: x,
+              y: y,
+              key: TouchKeys["drag"],
+            }
+          })
+        )
+      ),
+      tap(() => console.log("draggggss"))
+    )
+
+    // Drop
+    const drops = starts.pipe(
+      concatMap((dragStartEvent) =>
+        ends.pipe(
+          first(),
+          map((dragEndEvent) => {
+            const x = dragEndEvent.x - dragStartEvent.x
+            const y = dragEndEvent.y - dragStartEvent.y
+            return {
+              ev: dragEndEvent.ev,
+              x: x,
+              y: y,
+              key: TouchKeys["drop"],
+            }
+          })
+        )
+      )
+    )
+
+    this.touch = merge(drags, drops).pipe(
+      map(({ ev, ...rest }) => ({
         ev,
         type: ev.type,
         target: ev.target,
-        touches: ev.touches,
+        ...rest,
       })),
-      tap((v: InputValue) => this.debug && console.log("touch", v.type, v)),
       share()
     )
   }
@@ -111,13 +203,11 @@ class InputManager {
     name: string,
     actions: InputActionMap
   ): Observable<InputValue> {
-    let eventActions = []
-
-    eventActions.push(this.keyboardEventAction(actions.keyboard))
-    eventActions.push(this.mouseEventAction(actions.mouse))
-    eventActions.push(this.touchEventAction(actions.touch))
-
-    return merge(...eventActions).pipe(
+    return merge(
+      this.keyboardEventAction(actions.keyboard),
+      this.mouseEventAction(actions.mouse),
+      this.touchEventAction(actions.touch)
+    ).pipe(
       tap(
         (v: InputValue) => this.debug && console.log("Event", name, v.type, v)
       )
@@ -205,4 +295,4 @@ class InputManager {
 }
 
 export default InputManager
-export { InputValue, MouseKeys }
+export { InputValue, MouseKeys, TouchKeys }

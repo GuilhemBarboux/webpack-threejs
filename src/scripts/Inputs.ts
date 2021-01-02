@@ -1,6 +1,13 @@
 import InputManager, { MouseKeys } from "@core/inputs/InputManager"
 import { fromEvent, Observable } from "rxjs"
-import { distinctUntilChanged, filter, map, scan, tap } from "rxjs/operators"
+import {
+  distinctUntilChanged,
+  filter,
+  map,
+  mapTo,
+  scan,
+  tap,
+} from "rxjs/operators"
 import isTouch from "@core/utils/touch"
 
 class Inputs extends InputManager {
@@ -10,6 +17,7 @@ class Inputs extends InputManager {
 
   private readonly btn: HTMLElement
   private readonly joystick: HTMLElement
+  private readonly joystickWrapper: HTMLElement
 
   constructor(root: EventTarget = document) {
     super()
@@ -17,7 +25,7 @@ class Inputs extends InputManager {
     // HtmlElements
     this.btn = document.getElementById("btn")
     this.joystick = document.getElementById("joystick")
-    console.log(this.joystick)
+    this.joystickWrapper = document.getElementById("joystick-wrapper")
 
     // Devices events you need
     this.addKeyboard(
@@ -33,9 +41,9 @@ class Inputs extends InputManager {
       { event: "contextmenu", target: root }
     )
 
-    /*if (isTouch()) {
-      this.addTouch({ event: "touchmove", target: this.joystick })
-    }*/
+    console.log(this.joystickWrapper)
+
+    this.addTouch(this.joystick /*, this.joystickWrapper*/)
 
     // Actions events you need
     this.onJump = this.registerAction("jump", {
@@ -48,8 +56,8 @@ class Inputs extends InputManager {
         { type: "mouseup", key: MouseKeys.leftMouse },
       ],
     }).pipe(
-      map((value) => value.type === "keydown" || value.type === "mousedown"),
-      distinctUntilChanged()
+      filter((value) => value.type === "keydown" || value.type === "mousedown"),
+      mapTo(true)
     )
 
     this.onRun = this.registerAction("run", {
@@ -62,8 +70,8 @@ class Inputs extends InputManager {
         { type: "mouseup", key: MouseKeys.rightMouse },
       ],
     }).pipe(
-      map((value) => value.type === "keydown" || value.type === "mousedown"),
-      distinctUntilChanged()
+      filter((value) => value.type === "keydown" || value.type === "mousedown"),
+      mapTo(true)
     )
 
     this.onMove = this.registerAction("move", {
@@ -77,7 +85,14 @@ class Inputs extends InputManager {
         { type: "keydown", key: "ArrowRight" },
         { type: "keyup", key: "ArrowRight" },
       ],
-      touch: [{ type: "touchmove", target: this.joystick }],
+      touch: [
+        { type: "mousemove", target: this.joystick, key: "drag" },
+        { type: "mousemove", target: this.joystickWrapper, key: "drag" },
+        { type: "mousedown", target: this.joystick, key: "drag" },
+        { type: "mousedown", target: this.joystickWrapper, key: "drag" },
+        { type: "mouseup", target: this.joystick, key: "drop" },
+        { type: "mouseup", target: this.joystickWrapper, key: "drop" },
+      ],
     }).pipe(
       map((value) => {
         let x = 0,
@@ -95,10 +110,6 @@ class Inputs extends InputManager {
           if (value.key === "ArrowRight") y -= 1
           if (value.key === "ArrowUp") x -= 1
           if (value.key === "ArrowDown") x += 1
-        }
-
-        if (value.type === "touchmove") {
-          console.log("touch", value)
         }
 
         return { x, y }
