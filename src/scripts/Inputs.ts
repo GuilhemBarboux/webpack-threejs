@@ -25,7 +25,6 @@ class Inputs extends InputManager {
     // HtmlElements
     this.btn = document.getElementById("btn")
     this.joystick = document.getElementById("joystick")
-    this.joystickWrapper = document.getElementById("joystick-wrapper")
 
     // Devices events you need
     this.addKeyboard(
@@ -41,9 +40,7 @@ class Inputs extends InputManager {
       { event: "contextmenu", target: root }
     )
 
-    console.log(this.joystickWrapper)
-
-    this.addTouch(this.joystick /*, this.joystickWrapper*/)
+    this.addTouch(this.joystick)
 
     // Actions events you need
     this.onJump = this.registerAction("jump", {
@@ -86,12 +83,10 @@ class Inputs extends InputManager {
         { type: "keyup", key: "ArrowRight" },
       ],
       touch: [
-        { type: "mousemove", target: this.joystick, key: "drag" },
-        { type: "mousemove", target: this.joystickWrapper, key: "drag" },
-        { type: "mousedown", target: this.joystick, key: "drag" },
-        { type: "mousedown", target: this.joystickWrapper, key: "drag" },
-        { type: "mouseup", target: this.joystick, key: "drop" },
-        { type: "mouseup", target: this.joystickWrapper, key: "drop" },
+        { type: "touchmove", target: this.joystick, key: "drag" },
+        { type: "touchend", target: this.joystick, key: "drop" },
+        { type: "mousemove", key: "drag" },
+        { type: "mouseup", key: "drop" },
       ],
     }).pipe(
       map((value) => {
@@ -110,6 +105,18 @@ class Inputs extends InputManager {
           if (value.key === "ArrowRight") y -= 1
           if (value.key === "ArrowUp") x -= 1
           if (value.key === "ArrowDown") x += 1
+        }
+
+        if (value.key === "drag") {
+          const tx = Math.min(Math.max(value.x, -50), 50)
+          const ty = Math.min(Math.max(value.y, -50), 50)
+          this.joystick.style.transform = `translate(-${50 - tx}px, -${
+            50 - ty
+          }px)`
+        }
+
+        if (value.key === "drop") {
+          this.joystick.style.transform = `translate(-50px, -50px)`
         }
 
         return { x, y }

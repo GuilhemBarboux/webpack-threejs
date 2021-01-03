@@ -61,7 +61,7 @@ class InputManager {
   public keyboard: Observable<InputValue> = EMPTY
   public mouse: Observable<InputValue> = EMPTY
   public touch: Observable<InputValue> = EMPTY
-  private readonly debug = debug && true
+  private readonly debug = debug && false
 
   // ---------------------------------------------------------------------------------------------
   // EVENTS
@@ -130,20 +130,14 @@ class InputManager {
       )
     )
     const moves = merge(
-      merge(...touchTargets.map((t) => fromEvent(t, "mousemove"))).pipe(
-        map(mouseEventToCoordinate)
-      ),
+      fromEvent(window, "mousemove").pipe(map(mouseEventToCoordinate)),
       merge(...touchTargets.map((t) => fromEvent(t, "touchmove"))).pipe(
         map(touchEventToCoordinate)
       )
     )
     const ends = merge(
-      merge(...touchTargets.map((t) => fromEvent(t, "mouseup"))).pipe(
-        map(mouseEventToCoordinate)
-      ),
-      merge(...touchTargets.map((t) => fromEvent(t, "touchend"))).pipe(
-        map(touchEventToCoordinate)
-      )
+      fromEvent(window, "mouseup").pipe(map(mouseEventToCoordinate)),
+      fromEvent(window, "touchend").pipe(map(touchEventToCoordinate))
     )
 
     // Drag
@@ -162,8 +156,8 @@ class InputManager {
             }
           })
         )
-      ),
-      tap(() => console.log("draggggss"))
+      )
+      // tap(() => console.log("draggggss"))
     )
 
     // Drop
