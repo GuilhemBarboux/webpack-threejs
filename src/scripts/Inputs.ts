@@ -10,23 +10,23 @@ import {
   tap,
 } from "rxjs/operators"
 import isTouch from "@core/utils/touch"
+import Joystick from "@core/inputs/Joystick"
 
 class Inputs extends InputManager {
   public readonly onJump: Observable<boolean>
   public readonly onMove: Observable<{ x: number; y: number }>
   public readonly onRun: Observable<boolean>
 
-  private readonly btn: HTMLElement
-  private readonly joystick: HTMLElement
+  // HTML elements
+  private readonly joystick: Joystick
 
   constructor(root: EventTarget = document) {
     super()
 
     // HtmlElements
-    this.btn = document.getElementById("btn")
-    this.joystick = document.getElementById("joystick")
+    this.joystick = new Joystick(document.getElementById("joystick"))
 
-    // Devices events you need
+    // Devices events you need to register
     this.addKeyboard(
       { event: "keydown", target: document },
       { event: "keyup", target: document }
@@ -36,11 +36,10 @@ class Inputs extends InputManager {
       { event: "mousedown", target: root },
       { event: "mouseup", target: root },
       { event: "click", target: root },
-      { event: "click", target: this.btn },
       { event: "contextmenu", target: root }
     )
 
-    this.addTouch(this.joystick)
+    this.addTouch(this.joystick.element)
 
     // Actions events you need
     this.onJump = this.registerAction("jump", {
@@ -83,18 +82,16 @@ class Inputs extends InputManager {
         { type: "keyup", key: "ArrowRight" },
       ],
       touch: [
-        { type: "touchmove", target: this.joystick, key: "drag" },
-        { type: "touchend", target: this.joystick, key: "drop" },
-        { type: "mousemove", target: this.joystick, key: "drag" },
-        { type: "mouseup", target: this.joystick, key: "drop" },
+        { type: "touchmove", target: this.joystick.element, key: "drag" },
+        { type: "touchend", target: this.joystick.element, key: "drop" },
+        { type: "mousemove", target: this.joystick.element, key: "drag" },
+        { type: "mouseup", target: this.joystick.element, key: "drop" },
       ],
     }).pipe(
       scan(
         (direction: { x: number; y: number }, value: InputValue) => {
           let x = direction.x,
             y = direction.y
-
-          const size = 50
 
           if (value.type === "keydown") {
             if (value.key === "ArrowLeft") x -= 1
@@ -111,11 +108,8 @@ class Inputs extends InputManager {
           }
 
           if (value.key === "drag") {
-            const tx = between(-size, value.x, size)
-            const ty = between(-size, value.y, size)
-            x = tx / size
-            y = -ty / size
-            console.log(between(x, -1))
+            x = value.x / this.joystick.radius
+            y = -value.y / this.joystick.radius
           }
 
           if (value.key === "drop") {
@@ -130,25 +124,12 @@ class Inputs extends InputManager {
         },
         { x: 0, y: 0 }
       ),
-      map((direction) => ({
-        x: direction.x,
-        y: direction.y,
-      }))
-      /*scan(
-        (direction, value) => ({
-          x: Math.max(Math.min(direction.x + value.x, 1), -1),
-          y: Math.max(Math.min(direction.y + value.y, 1), -1),
-        }),
-        { x: 0, y: 0 }
-      )*/
+      tap(({ x, y }) => this.joystick.update(x, y))
     )
 
     this.mouse.subscribe((value) => {
       if (value.type === "contextmenu") value.ev.preventDefault()
     })
-    /*root.addEventListener("touchmove", (e) => {
-      console.log(e)
-    })*/
   }
 }
 

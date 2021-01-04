@@ -102,63 +102,62 @@ class InputManager {
   }
 
   public addTouch(...touchTargets: EventTarget[]) {
-    const mouseEventToCoordinate = (ev: MouseEvent) => {
-      ev.preventDefault()
-      return {
-        ev,
-        x: ev.clientX,
-        y: ev.clientY,
-      }
-    }
+    const targets = [...touchTargets, window]
 
-    const touchEventToCoordinate = (ev: TouchEvent) => {
-      ev.preventDefault()
-      return {
-        ev,
-        x: ev.changedTouches[0].clientX,
-        y: ev.changedTouches[0].clientY,
-      }
-    }
+    const mouseEventToCoordinate = (ev: MouseEvent) => ({
+      ev,
+      x: ev.clientX,
+      y: ev.clientY,
+    })
+
+    const touchEventToCoordinate = (ev: TouchEvent) => ({
+      ev,
+      x: ev.changedTouches[0].clientX,
+      y: ev.changedTouches[0].clientY,
+    })
 
     // Events
     const starts = merge(
-      merge(...touchTargets.map((t) => fromEvent(t, "mousedown"))).pipe(
+      merge(...targets.map((t) => fromEvent(t, "mousedown"))).pipe(
         map(mouseEventToCoordinate)
       ),
-      merge(...touchTargets.map((t) => fromEvent(t, "touchstart"))).pipe(
+      merge(...targets.map((t) => fromEvent(t, "touchstart"))).pipe(
         map(touchEventToCoordinate)
       )
     )
     const moves = merge(
-      fromEvent(window, "mousemove").pipe(map(mouseEventToCoordinate)),
+      merge(...targets.map((t) => fromEvent(t, "mousemove"))).pipe(
+        map(mouseEventToCoordinate)
+      ),
       merge(...touchTargets.map((t) => fromEvent(t, "touchmove"))).pipe(
         map(touchEventToCoordinate)
       )
     )
     const ends = merge(
-      fromEvent(window, "mouseup").pipe(map(mouseEventToCoordinate)),
-      fromEvent(window, "touchend").pipe(map(touchEventToCoordinate))
+      merge(...targets.map((t) => fromEvent(t, "mouseup"))).pipe(
+        map(mouseEventToCoordinate)
+      ),
+      merge(...touchTargets.map((t) => fromEvent(t, "touchend"))).pipe(
+        map(touchEventToCoordinate)
+      )
     )
 
     // Drag
     const drags = starts.pipe(
+      tap((value) => console.log(value.x, value.y)),
       concatMap((dragStartEvent) =>
         moves.pipe(
           takeUntil(ends),
-          map((dragEvent) => {
-            const x = dragEvent.x - dragStartEvent.x
-            const y = dragEvent.y - dragStartEvent.y
-            return {
-              ev: dragEvent.ev,
-              x: x,
-              y: y,
-              target: dragStartEvent.ev.target,
-              key: TouchKeys["drag"],
-            }
-          })
+          map((dragEvent) => ({
+            ev: dragEvent.ev,
+            x: dragEvent.x - dragStartEvent.x,
+            y: dragEvent.y - dragStartEvent.y,
+            target: dragStartEvent.ev.target,
+            key: TouchKeys["drag"],
+          })),
+          tap((value) => console.log(value.x, value.y))
         )
       )
-      // tap(() => console.log("draggggss"))
     )
 
     // Drop
@@ -166,17 +165,13 @@ class InputManager {
       concatMap((dragStartEvent) =>
         ends.pipe(
           first(),
-          map((dragEndEvent) => {
-            const x = dragEndEvent.x - dragStartEvent.x
-            const y = dragEndEvent.y - dragStartEvent.y
-            return {
-              ev: dragEndEvent.ev,
-              target: dragStartEvent.ev.target,
-              x: x,
-              y: y,
-              key: TouchKeys["drop"],
-            }
-          })
+          map((dragEndEvent) => ({
+            ev: dragEndEvent.ev,
+            target: dragStartEvent.ev.target,
+            x: dragEndEvent.x - dragStartEvent.x,
+            y: dragEndEvent.y - dragStartEvent.y,
+            key: TouchKeys["drop"],
+          }))
         )
       )
     )
