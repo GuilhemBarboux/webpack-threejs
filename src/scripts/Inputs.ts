@@ -1,5 +1,6 @@
-import InputManager, { MouseKeys } from "@core/inputs/InputManager"
+import InputManager, { InputValue, MouseKeys } from "@core/inputs/InputManager"
 import { fromEvent, Observable } from "rxjs"
+import { between } from "@core/utils/math.utils"
 import {
   distinctUntilChanged,
   filter,
@@ -17,7 +18,6 @@ class Inputs extends InputManager {
 
   private readonly btn: HTMLElement
   private readonly joystick: HTMLElement
-  private readonly joystickWrapper: HTMLElement
 
   constructor(root: EventTarget = document) {
     super()
@@ -85,49 +85,62 @@ class Inputs extends InputManager {
       touch: [
         { type: "touchmove", target: this.joystick, key: "drag" },
         { type: "touchend", target: this.joystick, key: "drop" },
-        { type: "mousemove", key: "drag" },
-        { type: "mouseup", key: "drop" },
+        { type: "mousemove", target: this.joystick, key: "drag" },
+        { type: "mouseup", target: this.joystick, key: "drop" },
       ],
     }).pipe(
-      map((value) => {
-        let x = 0,
-          y = 0
-
-        if (value.type === "keydown") {
-          if (value.key === "ArrowLeft") y -= 1
-          if (value.key === "ArrowRight") y += 1
-          if (value.key === "ArrowUp") x += 1
-          if (value.key === "ArrowDown") x -= 1
-        }
-
-        if (value.type === "keyup") {
-          if (value.key === "ArrowLeft") y += 1
-          if (value.key === "ArrowRight") y -= 1
-          if (value.key === "ArrowUp") x -= 1
-          if (value.key === "ArrowDown") x += 1
-        }
-
-        if (value.key === "drag") {
-          const tx = Math.min(Math.max(value.x, -50), 50)
-          const ty = Math.min(Math.max(value.y, -50), 50)
-          this.joystick.style.transform = `translate(-${50 - tx}px, -${
-            50 - ty
-          }px)`
-        }
-
-        if (value.key === "drop") {
-          this.joystick.style.transform = `translate(-50px, -50px)`
-        }
-
-        return { x, y }
-      }),
       scan(
+        (direction: { x: number; y: number }, value: InputValue) => {
+          let x = direction.x,
+            y = direction.y
+
+          const size = 50
+
+          if (value.type === "keydown") {
+            if (value.key === "ArrowLeft") x -= 1
+            if (value.key === "ArrowRight") x += 1
+            if (value.key === "ArrowUp") y += 1
+            if (value.key === "ArrowDown") y -= 1
+          }
+
+          if (value.type === "keyup") {
+            if (value.key === "ArrowLeft") x += 1
+            if (value.key === "ArrowRight") x -= 1
+            if (value.key === "ArrowUp") y -= 1
+            if (value.key === "ArrowDown") y += 1
+          }
+
+          if (value.key === "drag") {
+            const tx = between(-size, value.x, size)
+            const ty = between(-size, value.y, size)
+            x = tx / size
+            y = -ty / size
+            console.log(between(x, -1))
+          }
+
+          if (value.key === "drop") {
+            x = 0
+            y = 0
+          }
+
+          return {
+            x: between(x, -1),
+            y: between(y, -1),
+          }
+        },
+        { x: 0, y: 0 }
+      ),
+      map((direction) => ({
+        x: direction.x,
+        y: direction.y,
+      }))
+      /*scan(
         (direction, value) => ({
           x: Math.max(Math.min(direction.x + value.x, 1), -1),
           y: Math.max(Math.min(direction.y + value.y, 1), -1),
         }),
         { x: 0, y: 0 }
-      )
+      )*/
     )
 
     this.mouse.subscribe((value) => {

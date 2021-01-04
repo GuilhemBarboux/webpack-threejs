@@ -56,3 +56,7 @@ export const random = (min, max) => {
 
   return min + Math.random() * (max - min)
 }
+
+export const between = (num, min = 0, max = 1) => {
+  return Math.min(Math.max(min, num), max)
+}

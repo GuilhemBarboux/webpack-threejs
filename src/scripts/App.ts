@@ -64,7 +64,7 @@ export default class App {
     })
 
     this.inputs.onMove.subscribe(({ x, y }) => {
-      // console.log("move", x, y)
+      console.log("move", x, y)
     })
 
     this.inputs.onRun.subscribe((run) => {

@@ -152,6 +152,7 @@ class InputManager {
               ev: dragEvent.ev,
               x: x,
               y: y,
+              target: dragStartEvent.ev.target,
               key: TouchKeys["drag"],
             }
           })
@@ -170,6 +171,7 @@ class InputManager {
             const y = dragEndEvent.y - dragStartEvent.y
             return {
               ev: dragEndEvent.ev,
+              target: dragStartEvent.ev.target,
               x: x,
               y: y,
               key: TouchKeys["drop"],
@@ -183,7 +185,6 @@ class InputManager {
       map(({ ev, ...rest }) => ({
         ev,
         type: ev.type,
-        target: ev.target,
         ...rest,
       })),
       share()
