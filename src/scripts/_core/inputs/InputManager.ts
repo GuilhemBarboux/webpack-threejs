@@ -144,7 +144,6 @@ class InputManager {
 
     // Drag
     const drags = starts.pipe(
-      tap((value) => console.log(value.x, value.y)),
       concatMap((dragStartEvent) =>
         moves.pipe(
           takeUntil(ends),
@@ -154,8 +153,7 @@ class InputManager {
             y: dragEvent.y - dragStartEvent.y,
             target: dragStartEvent.ev.target,
             key: TouchKeys["drag"],
-          })),
-          tap((value) => console.log(value.x, value.y))
+          }))
         )
       )
     )
