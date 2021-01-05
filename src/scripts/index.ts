@@ -1,16 +1,14 @@
 import ready from "domready"
 import AsyncPreloader from "async-preloader"
 
-// import App from './App';
-import { fetchJSON } from "@core/utils/fetch.utils"
+// Load data manifest
+const manifest = require("@src/data/manifest.json")
 
 declare global {
   interface Window {
     app: any
   }
 }
-
-let manifest: any
 
 const preload = () => {
   const items = manifest.items
@@ -45,15 +43,4 @@ const preload = () => {
     })
 }
 
-ready(() => {
-  // fetch manifest
-  fetchJSON("data/manifest.json")
-    // assets and main module
-    .then((response) => {
-      manifest = response
-      return preload()
-    })
-    .catch((e) => {
-      console.log("ready", e)
-    })
-})
+ready(preload)
