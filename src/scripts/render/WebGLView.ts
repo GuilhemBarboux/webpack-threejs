@@ -5,16 +5,14 @@ import {
   Clock,
   IcosahedronBufferGeometry,
   ShaderMaterial,
-  Color,
   Mesh,
-  HemisphereLight,
-  DirectionalLight,
   LoadingManager,
   HalfFloatType,
 } from "three"
+
 import AsyncPreloader from "async-preloader"
 import WebGLLoader from "./WebGLLoader"
-import { TrackballControls } from "three/examples/jsm/controls/TrackballControls.js"
+// import { TrackballControls } from "three/examples/jsm/controls/TrackballControls.js"
 
 const glslify = require("glslify")
 const {
@@ -40,7 +38,7 @@ export default class WebGLView {
   private fovWidth: number
 
   public renderer: WebGLRenderer
-  public trackball: TrackballControls
+  // public trackball: TrackballControls
 
   constructor(app: any) {
     this.app = app
@@ -67,12 +65,12 @@ export default class WebGLView {
   }
 
   initControls() {
-    this.trackball = new TrackballControls(
+    /*this.trackball = new TrackballControls(
       this.camera,
       this.renderer.domElement
     )
     this.trackball.rotateSpeed = 2.0
-    this.trackball.enabled = true
+    this.trackball.enabled = true*/
   }
 
   setScene(scene: Scene = new Scene()) {
@@ -157,7 +155,7 @@ export default class WebGLView {
   // ---------------------------------------------------------------------------------------------
 
   update() {
-    if (this.trackball) this.trackball.update()
+    // if (this.trackball) this.trackball.update()
   }
 
   draw() {
@@ -185,6 +183,6 @@ export default class WebGLView {
     this.renderer.setSize(vw, vh)
 
     if (this.composer) this.composer.setSize(vw, vh)
-    if (this.trackball) this.trackball.handleResize()
+    // if (this.trackball) this.trackball.handleResize()
   }
 }

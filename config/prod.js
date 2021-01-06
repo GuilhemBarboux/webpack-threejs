@@ -1,18 +1,14 @@
 const { merge } = require("webpack-merge")
 const common = require("./common.js")
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
-const TerserPlugin = require("terser-webpack-plugin");
+const ESLintPlugin = require('eslint-webpack-plugin');
 
 module.exports = merge(common, {
   mode: "production",
   plugins: [
+    new ESLintPlugin(),
     new BundleAnalyzerPlugin({
       analyzerMode: "static",
     })
   ],
-  optimization: {
-    usedExports: true,
-    minimize: true,
-    minimizer: [new TerserPlugin()],
-  },
 })

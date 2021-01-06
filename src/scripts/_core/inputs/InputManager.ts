@@ -1,5 +1,5 @@
 import debug from "@core/Debug"
-import { EMPTY, from, fromEvent, merge, Observable } from "rxjs"
+import { EMPTY, fromEvent, merge, Observable } from "rxjs"
 import {
   concatMap,
   distinctUntilChanged,
@@ -67,7 +67,7 @@ class InputManager {
   // EVENTS
   // ---------------------------------------------------------------------------------------------
   public addKeyboard(...keyboardEvents: InputEvent[]) {
-    this.keyboard = merge(
+    this.keyboard = merge<KeyboardEvent>(
       ...keyboardEvents.map((ie) =>
         fromEvent<KeyboardEvent>(ie.target, ie.event, ie.options)
       )

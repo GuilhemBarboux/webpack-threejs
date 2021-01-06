@@ -1,4 +1,4 @@
-import * as THREE from "three"
+import { IcosahedronBufferGeometry, Mesh } from "three"
 import Tweakpane from "tweakpane"
 import Stats from "stats.js"
 
@@ -80,13 +80,13 @@ export default class GUIView {
 
   onDensityChange(value) {
     const obj = this.app.webgl.object3D
-    const geometry = new THREE.IcosahedronBufferGeometry(50, value)
+    const geometry = new IcosahedronBufferGeometry(50, value)
     const material = obj.material
 
     obj.geometry.dispose()
     obj.parent.remove(obj)
 
-    this.app.webgl.object3D = new THREE.Mesh(geometry, material)
+    this.app.webgl.object3D = new Mesh(geometry, material)
     this.app.webgl.scene.add(this.app.webgl.object3D)
   }
 

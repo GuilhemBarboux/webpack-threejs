@@ -1,15 +1,7 @@
 import InputManager, { InputValue, MouseKeys } from "@core/inputs/InputManager"
-import { fromEvent, Observable } from "rxjs"
+import { Observable } from "rxjs"
 import { between } from "@core/utils/math.utils"
-import {
-  distinctUntilChanged,
-  filter,
-  map,
-  mapTo,
-  scan,
-  tap,
-} from "rxjs/operators"
-import isTouch from "@core/utils/touch"
+import { filter, mapTo, scan, tap } from "rxjs/operators"
 import Joystick from "@core/inputs/Joystick"
 
 class Inputs extends InputManager {

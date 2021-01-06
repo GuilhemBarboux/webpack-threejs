@@ -2,14 +2,17 @@ let alreadyTested = false
 let passiveSupported = false
 
 const isSupported = () => {
+  let opts
+
   if (alreadyTested) return passiveSupported
   alreadyTested = true
 
   // Test via a getter in the options object to see if the passive property is accessed
   try {
-    let opts = Object.defineProperty({}, "passive", {
+    opts = Object.defineProperty({}, "passive", {
       get: () => {
         passiveSupported = true
+        return true
       },
     })
     window.addEventListener("test", null, opts)

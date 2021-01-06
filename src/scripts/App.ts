@@ -1,25 +1,20 @@
-import { Scene } from "three"
-
-require("../styles/main")
-
 import WebGLView from "./render/WebGLView"
-import { IWebGLObject } from "./render/IWebGLObject"
-import GUIView from "./gui/GUIView"
+// import GUIView from "./gui/GUIView"
 import BaseScene from "@core/objects/BaseScene"
 import Machine from "@core/machine/Machine"
 import Inputs from "./Inputs"
 
 // Config scene available (First load by default)
 const sceneList: { [index: string]: string } = {
-  scene1: "./objects/scene1",
+  scene1: "./scenes/scene1/index",
 }
 
 export default class App {
   private el: HTMLElement
   private webgl: WebGLView
-  private gui: GUIView
+  // private gui: GUIView
   private raf: number
-  private handlerAnimate: any
+  private handlerAnimate: () => void
   private scenes: { [index: string]: BaseScene } = {}
   private currentScene: BaseScene
   private machine: Machine
@@ -41,13 +36,20 @@ export default class App {
     this.animate()
   }
 
-  async load() {}
+  async load(): Promise<void> {
+    await this.loadScene()
+  }
 
-  async loadScene(id: string = "scene1", reset: boolean = false) {
+  async loadScene(id = "scene1", reset = false): Promise<void> {
     if ((!this.scenes[id] || reset) && sceneList[id]) {
-      const pScene = await import(/* webpackMode: "lazy-once" */ sceneList[id])
-      this.scenes[id] = new pScene.default()
+      const pScene = await import(
+        /* webpackMode: "lazy-once" */ `${sceneList[id]}`
+      )
+      console.log(pScene)
+      // this.scenes[id] = new pScene.default()
     }
+
+    console.log(this.scenes[id])
 
     this.currentScene = this.scenes[id]
 
@@ -57,44 +59,46 @@ export default class App {
     }
   }
 
-  initInputs() {
+  initInputs(): void {
     this.inputs = new Inputs(this.webgl.renderer.domElement)
-    this.inputs.onJump.subscribe((jump) => {
+    this.inputs.onJump.subscribe((jump: boolean) => {
       console.log("jump", jump)
     })
 
-    this.inputs.onMove.subscribe(({ x, y }) => {
-      // console.log("move", x, y)
+    this.inputs.onMove.subscribe(({ x, y }: { x: number; y: number }) => {
+      console.log("move", x, y)
     })
 
-    this.inputs.onRun.subscribe((run) => {
+    this.inputs.onRun.subscribe((run: boolean) => {
       console.log("run", run)
     })
   }
 
-  initMachine() {
+  initMachine(): void {
     this.machine = new Machine()
   }
 
-  initWebGL() {
+  initWebGL(): void {
     this.webgl = new WebGLView(this)
     this.el.appendChild(this.webgl.renderer.domElement)
   }
 
-  initPhysics() {}
-
-  initGUI() {
-    this.gui = new GUIView(this)
+  initPhysics(): void {
+    // TODO
   }
 
-  initListeners() {
+  initGUI(): void {
+    // this.gui = new GUIView(this)
+  }
+
+  initListeners(): void {
     this.handlerAnimate = this.animate.bind(this)
 
     window.addEventListener("resize", this.resize.bind(this))
     window.addEventListener("keyup", this.keyup.bind(this))
   }
 
-  animate() {
+  animate(): void {
     this.update()
     this.draw()
 
@@ -105,37 +109,37 @@ export default class App {
   // PUBLIC
   // ---------------------------------------------------------------------------------------------
 
-  update() {
+  update(): void {
     // if (this.machine) this.machine.currentState.onUpdate()
     if (this.currentScene) this.currentScene.update()
-    if (this.gui.stats) this.gui.stats.begin()
+    // if (this.gui.stats) this.gui.stats.begin()
     if (this.webgl) this.webgl.update()
   }
 
-  draw() {
+  draw(): void {
     if (this.webgl) this.webgl.draw()
-    if (this.gui.stats) this.gui.stats.end()
+    // if (this.gui.stats) this.gui.stats.end()
   }
 
   // ---------------------------------------------------------------------------------------------
   // EVENT HANDLERS
   // ---------------------------------------------------------------------------------------------
 
-  resize() {
+  resize(): void {
     const vw = this.el.offsetWidth || window.innerWidth
     const vh = this.el.offsetHeight || window.innerHeight
 
     if (this.webgl) this.webgl.resize(vw, vh)
   }
 
-  keyup(e: any) {
+  keyup(e: KeyboardEvent): void {
     // g or p
     if (e.keyCode == 71 || e.keyCode == 80) {
-      if (this.gui) this.gui.toggle()
+      // if (this.gui) this.gui.toggle()
     }
     // h
     if (e.keyCode == 72) {
-      if (this.webgl.trackball) this.webgl.trackball.reset()
+      // if (this.webgl.trackball) this.webgl.trackball.reset()
     }
   }
 }

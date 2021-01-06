@@ -3,7 +3,7 @@ import { IWebGLObject } from "../../render/IWebGLObject"
 import WebGLLoader from "../../render/WebGLLoader"
 import { AsyncPreloader } from "async-preloader"
 
-class BaseScene extends Scene implements IWebGLObject {
+abstract class BaseScene extends Scene implements IWebGLObject {
   static loader: WebGLLoader = null
 
   static getLoader() {
@@ -19,14 +19,9 @@ class BaseScene extends Scene implements IWebGLObject {
     return this.loader
   }
 
-  objects: { [index: string]: IWebGLObject } = {}
+  abstract load(): Promise<any>
 
-  load(): Promise<any> {
-    return undefined
-  }
-  update() {
-    Object.values(this.objects).forEach((o) => o.update())
-  }
+  abstract update(): void
 }
 
 export default BaseScene
