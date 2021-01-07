@@ -1,5 +1,5 @@
 import { Mesh } from "three"
-import { IWebGLObject } from "../../render/IWebGLObject"
+import { IWebGLObject } from "@core/render/IWebGLObject"
 
 class BaseMesh extends Mesh implements IWebGLObject {
   update: () => void

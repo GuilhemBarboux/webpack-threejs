@@ -12,20 +12,20 @@ import {
 
 import AsyncPreloader from "async-preloader"
 import WebGLLoader from "./WebGLLoader"
-// import { TrackballControls } from "three/examples/jsm/controls/TrackballControls.js"
-
-const glslify = require("glslify")
-const {
+import { TrackballControls } from "three/examples/jsm/controls/TrackballControls.js"
+// import glslify from "glslify"
+import {
   EffectComposer,
   EffectPass,
   NoiseEffect,
   RenderPass,
   SMAAEffect,
   VignetteEffect,
-} = require("postprocessing")
+} from "postprocessing"
+import App from "@src/scripts/App"
 
 export default class WebGLView {
-  private app: any
+  private app: App
   private readonly debug: boolean = true
   private scene: Scene
   private camera: PerspectiveCamera
@@ -38,17 +38,17 @@ export default class WebGLView {
   private fovWidth: number
 
   public renderer: WebGLRenderer
-  // public trackball: TrackballControls
+  public trackball: TrackballControls
 
-  constructor(app: any) {
+  constructor(app: App) {
     this.app = app
 
     // Init steps
     this.initThree()
-    // this.initControls()
+    this.initControls()
   }
 
-  initThree() {
+  initThree(): void {
     this.scene = new Scene()
 
     this.camera = new PerspectiveCamera(
@@ -64,7 +64,7 @@ export default class WebGLView {
     this.clock = new Clock()
   }
 
-  initControls() {
+  initControls(): void {
     /*this.trackball = new TrackballControls(
       this.camera,
       this.renderer.domElement
@@ -73,7 +73,7 @@ export default class WebGLView {
     this.trackball.enabled = true*/
   }
 
-  setScene(scene: Scene = new Scene()) {
+  setScene(scene: Scene = new Scene()): void {
     this.scene = scene
     this.composer = new EffectComposer(this.renderer, {
       frameBufferType: HalfFloatType,
@@ -154,11 +154,11 @@ export default class WebGLView {
   // PUBLIC
   // ---------------------------------------------------------------------------------------------
 
-  update() {
+  update(): void {
     // if (this.trackball) this.trackball.update()
   }
 
-  draw() {
+  draw(): void {
     const delta = this.clock.getDelta()
 
     if (this.composer && this.composer.enabled) this.composer.render(delta)
@@ -169,7 +169,7 @@ export default class WebGLView {
   // EVENT HANDLERS
   // ---------------------------------------------------------------------------------------------
 
-  resize(vw: number, vh: number) {
+  resize(vw: number, vh: number): void {
     if (!this.renderer) return
     this.camera.aspect = vw / vh
     this.camera.updateProjectionMatrix()
@@ -183,6 +183,6 @@ export default class WebGLView {
     this.renderer.setSize(vw, vh)
 
     if (this.composer) this.composer.setSize(vw, vh)
-    // if (this.trackball) this.trackball.handleResize()
+    if (this.trackball) this.trackball.handleResize()
   }
 }

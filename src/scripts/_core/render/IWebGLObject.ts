@@ -1,6 +1,6 @@
 interface IWebGLObject {
   update(): void
-  load(): Promise<any>
+  load(): Promise<void>
 }
 
 export { IWebGLObject }

@@ -1,8 +1,9 @@
-import WebGLView from "./render/WebGLView"
-// import GUIView from "./gui/GUIView"
+import WebGLView from "@core/render/WebGLView"
 import BaseScene from "@core/objects/BaseScene"
 import Machine from "@core/machine/Machine"
+
 import Inputs from "./Inputs"
+import GUIView from "./gui/GUIView"
 
 // Config scene available (First load by default)
 const sceneList: { [index: string]: string } = {
@@ -12,7 +13,7 @@ const sceneList: { [index: string]: string } = {
 export default class App {
   private el: HTMLElement
   private webgl: WebGLView
-  // private gui: GUIView
+  private gui: GUIView
   private raf: number
   private handlerAnimate: () => void
   private scenes: { [index: string]: BaseScene } = {}
@@ -88,7 +89,7 @@ export default class App {
   }
 
   initGUI(): void {
-    // this.gui = new GUIView(this)
+    this.gui = new GUIView(this)
   }
 
   initListeners(): void {
@@ -135,11 +136,11 @@ export default class App {
   keyup(e: KeyboardEvent): void {
     // g or p
     if (e.keyCode == 71 || e.keyCode == 80) {
-      // if (this.gui) this.gui.toggle()
+      if (this.gui) this.gui.toggle()
     }
     // h
     if (e.keyCode == 72) {
-      // if (this.webgl.trackball) this.webgl.trackball.reset()
+      if (this.webgl.trackball) this.webgl.trackball.reset()
     }
   }
 }

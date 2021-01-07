@@ -1,8 +1,6 @@
 import ready from "domready"
 import AsyncPreloader from "async-preloader"
-
-// Load data manifest
-const manifest = require("@src/data/manifest.json")
+import manifest from "@src/data/manifest.json"
 
 declare global {
   interface Window {
@@ -22,7 +20,7 @@ const preload = () => {
   let progress = 0
 
   Promise.all(
-    pProgress.map((p) => {
+    pProgress.map((p: Promise<any>) => {
       p.then(() => {
         loadedCount++
         progress = loadedCount / pProgress.length
@@ -31,12 +29,12 @@ const preload = () => {
       return p
     })
   )
-    .then(([{ default: App }, ...items]) => {
+    .then(([App]) => {
       window.app = new App()
       return window.app.load()
     })
     .then(() => {
-      console.log("Loaded")
+      console.log("Loaded", progress)
     })
     .catch((e) => {
       console.log("preload", e)

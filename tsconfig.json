@@ -8,10 +8,11 @@
     "sourceMap": true,
     "module": "esnext",
     "target": "esnext",
-    // "esModuleInterop": true,
+    "esModuleInterop": true,
     "allowJs": true,
     "moduleResolution": "node",
     "allowSyntheticDefaultImports": true,
+    "resolveJsonModule": true,
     "baseUrl": "./",
     "paths": {
       "@core/*": ["src/scripts/_core/*"],
