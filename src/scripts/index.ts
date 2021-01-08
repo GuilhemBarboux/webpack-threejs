@@ -29,9 +29,9 @@ const preload = () => {
       return p
     })
   )
-    .then(([App]) => {
+    .then(([{ default: App }]) => {
       window.app = new App()
-      return window.app.load()
+      return window.app.start()
     })
     .then(() => {
       console.log("Loaded", progress)

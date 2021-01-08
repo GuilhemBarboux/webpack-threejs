@@ -1,27 +1,24 @@
 import WebGLView from "@core/render/WebGLView"
-import BaseScene from "@core/objects/BaseScene"
 import Machine from "@core/machine/Machine"
 
 import Inputs from "./Inputs"
 import GUIView from "./gui/GUIView"
+import { sceneList } from "./Config"
+import SceneManager from "@core/SceneManager"
 
-// Config scene available (First load by default)
-const sceneList: { [index: string]: string } = {
-  scene1: "./scenes/scene1/index",
-}
-
-export default class App {
+export default class App extends SceneManager {
   private el: HTMLElement
   private webgl: WebGLView
   private gui: GUIView
   private raf: number
   private handlerAnimate: () => void
-  private scenes: { [index: string]: BaseScene } = {}
-  private currentScene: BaseScene
   private machine: Machine
   private inputs: Inputs
 
   constructor() {
+    super(sceneList)
+
+    // Html
     this.el = document.querySelector(".container")
 
     // Init
@@ -37,29 +34,14 @@ export default class App {
     this.animate()
   }
 
-  async load(): Promise<void> {
-    await this.loadScene()
+  async start(): Promise<void> {
+    this.current = await this.loadScene()
+    this.webgl.setScene(this.current)
   }
 
-  async loadScene(id = "scene1", reset = false): Promise<void> {
-    if ((!this.scenes[id] || reset) && sceneList[id]) {
-      const pScene = await import(
-        /* webpackMode: "lazy-once" */ `${sceneList[id]}`
-      )
-      console.log(pScene)
-      // this.scenes[id] = new pScene.default()
-    }
-
-    console.log(this.scenes[id])
-
-    this.currentScene = this.scenes[id]
-
-    if (this.currentScene) {
-      await this.currentScene.load()
-      this.webgl.setScene(this.currentScene)
-    }
-  }
-
+  // ---------------------------------------------------------------------------------------------
+  // Initialization
+  // ---------------------------------------------------------------------------------------------
   initInputs(): void {
     this.inputs = new Inputs(this.webgl.renderer.domElement)
     this.inputs.onJump.subscribe((jump: boolean) => {
@@ -99,6 +81,9 @@ export default class App {
     window.addEventListener("keyup", this.keyup.bind(this))
   }
 
+  // ---------------------------------------------------------------------------------------------
+  // Updates
+  // ---------------------------------------------------------------------------------------------
   animate(): void {
     this.update()
     this.draw()
@@ -106,26 +91,21 @@ export default class App {
     this.raf = requestAnimationFrame(this.handlerAnimate)
   }
 
-  // ---------------------------------------------------------------------------------------------
-  // PUBLIC
-  // ---------------------------------------------------------------------------------------------
-
   update(): void {
     // if (this.machine) this.machine.currentState.onUpdate()
-    if (this.currentScene) this.currentScene.update()
-    // if (this.gui.stats) this.gui.stats.begin()
+    if (this.current) this.current.update()
+    if (this.gui.stats) this.gui.stats.begin()
     if (this.webgl) this.webgl.update()
   }
 
   draw(): void {
     if (this.webgl) this.webgl.draw()
-    // if (this.gui.stats) this.gui.stats.end()
+    if (this.gui.stats) this.gui.stats.end()
   }
 
   // ---------------------------------------------------------------------------------------------
-  // EVENT HANDLERS
+  // Events
   // ---------------------------------------------------------------------------------------------
-
   resize(): void {
     const vw = this.el.offsetWidth || window.innerWidth
     const vh = this.el.offsetHeight || window.innerHeight
