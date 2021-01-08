@@ -1,4 +1,4 @@
-import InputManager, { InputValue, MouseKeys } from "@core/inputs/InputManager"
+import InputManager, { InputValue, MouseKeys } from "@core/InputManager"
 import { Observable } from "rxjs"
 import { between } from "@core/utils/math.utils"
 import { filter, mapTo, scan, tap } from "rxjs/operators"

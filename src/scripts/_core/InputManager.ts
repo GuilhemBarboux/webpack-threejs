@@ -1,4 +1,4 @@
-import debug from "@core/Debug"
+import debug from "@core/DebugManager"
 import { EMPTY, fromEvent, merge, Observable } from "rxjs"
 import {
   concatMap,
@@ -66,7 +66,7 @@ class InputManager {
   // ---------------------------------------------------------------------------------------------
   // EVENTS
   // ---------------------------------------------------------------------------------------------
-  public addKeyboard(...keyboardEvents: InputEvent[]) {
+  public addKeyboard(...keyboardEvents: InputEvent[]): void {
     this.keyboard = merge<KeyboardEvent>(
       ...keyboardEvents.map((ie) =>
         fromEvent<KeyboardEvent>(ie.target, ie.event, ie.options)
@@ -83,7 +83,7 @@ class InputManager {
     )
   }
 
-  public addMouse(...mouseEvents: InputEvent[]) {
+  public addMouse(...mouseEvents: InputEvent[]): void {
     this.mouse = merge(
       ...mouseEvents.map((ie) =>
         fromEvent<MouseEvent>(ie.target, ie.event, ie.options)
@@ -101,7 +101,7 @@ class InputManager {
     )
   }
 
-  public addTouch(...touchTargets: EventTarget[]) {
+  public addTouch(...touchTargets: EventTarget[]): void {
     const targets = [...touchTargets, window]
 
     const mouseEventToCoordinate = (ev: MouseEvent) => ({
@@ -191,11 +191,13 @@ class InputManager {
     name: string,
     actions: InputActionMap
   ): Observable<InputValue> {
-    return merge(
-      this.keyboardEventAction(actions.keyboard),
-      this.mouseEventAction(actions.mouse),
-      this.touchEventAction(actions.touch)
-    ).pipe(
+    const devices = []
+
+    if (this.keyboard) devices.push(this.keyboardEventAction(actions.keyboard))
+    if (this.mouse) devices.push(this.mouseEventAction(actions.mouse))
+    if (this.touch) devices.push(this.touchEventAction(actions.touch))
+
+    return merge(...devices).pipe(
       tap(
         (v: InputValue) => this.debug && console.log("Event", name, v.type, v)
       )
