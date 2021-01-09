@@ -1,4 +1,4 @@
-import WebGLView from "@core/render/WebGLView"
+import ThreeRenderManager from "@core/render/ThreeRenderManager"
 import Machine from "@core/machine/Machine"
 
 import Inputs from "./Inputs"
@@ -7,11 +7,13 @@ import { sceneList } from "./Config"
 import SceneManager from "@core/SceneManager"
 
 export default class App extends SceneManager {
-  private el: HTMLElement
-  private webgl: WebGLView
-  private gui: GUIView
+  private container: HTMLElement
+
   private raf: number
   private handlerAnimate: () => void
+
+  private render: ThreeRenderManager
+  private gui: GUIView
   private machine: Machine
   private inputs: Inputs
 
@@ -19,15 +21,17 @@ export default class App extends SceneManager {
     super(sceneList)
 
     // Html
-    this.el = document.querySelector(".container")
+    this.container = document.querySelector(".container")
 
-    // Init
+    // Core
     this.initMachine()
-    this.initWebGL()
+    this.initRender()
     this.initPhysics()
     this.initGUI()
-    this.initListeners()
     this.initInputs()
+
+    // Others
+    this.initListeners()
 
     // Run
     this.resize()
@@ -36,14 +40,14 @@ export default class App extends SceneManager {
 
   async start(): Promise<void> {
     this.current = await this.loadScene()
-    this.webgl.setScene(this.current)
+    this.render.setScene(this.current)
   }
 
   // ---------------------------------------------------------------------------------------------
   // Initialization
   // ---------------------------------------------------------------------------------------------
   initInputs(): void {
-    this.inputs = new Inputs(this.webgl.renderer.domElement)
+    this.inputs = new Inputs(this.render.renderer.domElement)
     this.inputs.onJump.subscribe((jump: boolean) => {
       console.log("jump", jump)
     })
@@ -61,9 +65,9 @@ export default class App extends SceneManager {
     this.machine = new Machine()
   }
 
-  initWebGL(): void {
-    this.webgl = new WebGLView(this)
-    this.el.appendChild(this.webgl.renderer.domElement)
+  initRender(): void {
+    this.render = new ThreeRenderManager(this)
+    this.container.appendChild(this.render.renderer.domElement)
   }
 
   initPhysics(): void {
@@ -95,11 +99,11 @@ export default class App extends SceneManager {
     // if (this.machine) this.machine.currentState.onUpdate()
     if (this.current) this.current.update()
     if (this.gui.stats) this.gui.stats.begin()
-    if (this.webgl) this.webgl.update()
+    if (this.render) this.render.update()
   }
 
   draw(): void {
-    if (this.webgl) this.webgl.draw()
+    if (this.render) this.render.draw()
     if (this.gui.stats) this.gui.stats.end()
   }
 
@@ -107,10 +111,10 @@ export default class App extends SceneManager {
   // Events
   // ---------------------------------------------------------------------------------------------
   resize(): void {
-    const vw = this.el.offsetWidth || window.innerWidth
-    const vh = this.el.offsetHeight || window.innerHeight
+    const vw = this.container.offsetWidth || window.innerWidth
+    const vh = this.container.offsetHeight || window.innerHeight
 
-    if (this.webgl) this.webgl.resize(vw, vh)
+    if (this.render) this.render.resize(vw, vh)
   }
 
   keyup(e: KeyboardEvent): void {
@@ -120,7 +124,7 @@ export default class App extends SceneManager {
     }
     // h
     if (e.keyCode == 72) {
-      if (this.webgl.trackball) this.webgl.trackball.reset()
+      if (this.render.trackball) this.render.trackball.reset()
     }
   }
 }

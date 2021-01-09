@@ -23,8 +23,9 @@ import {
   VignetteEffect,
 } from "postprocessing"
 import App from "@src/scripts/App"
+import RenderManager from "@core/RenderManager"
 
-export default class WebGLView {
+export default class ThreeRenderManager extends RenderManager {
   private app: App
   private readonly debug: boolean = true
   private scene: Scene
@@ -41,6 +42,8 @@ export default class WebGLView {
   public trackball: TrackballControls
 
   constructor(app: App) {
+    super()
+
     this.app = app
 
     // Init steps
