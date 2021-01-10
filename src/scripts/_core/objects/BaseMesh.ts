@@ -1,8 +1,8 @@
 import { Mesh } from "three"
-import { IWebGLObject } from "@core/render/IWebGLObject"
+import { IRenderObject } from "@core/render"
 
-class BaseMesh extends Mesh implements IWebGLObject {
-  update: () => void
+class BaseMesh extends Mesh implements IRenderObject {
+  updateRender: () => void
   load: () => Promise<any>
 }
 

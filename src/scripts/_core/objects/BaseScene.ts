@@ -1,9 +1,9 @@
 import { LoadingManager, Scene } from "three"
-import { IWebGLObject } from "@core/render/IWebGLObject"
-import WebGLLoader from "@core/render/WebGLLoader"
+import { IRenderObject } from "@core/render"
+import WebGLLoader from "@core/render/three/ThreeLoader"
 import AsyncPreloader from "async-preloader"
 
-abstract class BaseScene extends Scene implements IWebGLObject {
+abstract class BaseScene extends Scene implements IRenderObject {
   static loader: WebGLLoader = null
 
   static getLoader(): WebGLLoader {
@@ -20,7 +20,7 @@ abstract class BaseScene extends Scene implements IWebGLObject {
 
   abstract load(): Promise<any>
 
-  abstract update(): void
+  abstract updateRender(): void
 }
 
 export default BaseScene

@@ -16,7 +16,7 @@ class LoaderDecorator {
   }
 }
 
-export default class WebGLLoader {
+export default class ThreeLoader {
   private readonly manager: LoadingManager
   private readonly loaders: { [index: string]: LoaderDecorator }
 

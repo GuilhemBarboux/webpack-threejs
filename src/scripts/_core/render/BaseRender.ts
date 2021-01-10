@@ -1,7 +1,5 @@
-abstract class RenderManager {
+export default abstract class BaseRender {
   abstract draw(): void
   abstract update(): void
   abstract resize(vw: number, vh: number): void
 }
-
-export default RenderManager

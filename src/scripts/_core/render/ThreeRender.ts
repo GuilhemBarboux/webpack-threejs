@@ -9,11 +9,8 @@ import {
   LoadingManager,
   HalfFloatType,
 } from "three"
-
-import AsyncPreloader from "async-preloader"
-import WebGLLoader from "./WebGLLoader"
-import { TrackballControls } from "three/examples/jsm/controls/TrackballControls.js"
 // import glslify from "glslify"
+import { TrackballControls } from "three/examples/jsm/controls/TrackballControls.js"
 import {
   EffectComposer,
   EffectPass,
@@ -22,29 +19,33 @@ import {
   SMAAEffect,
   VignetteEffect,
 } from "postprocessing"
-import App from "@src/scripts/App"
-import RenderManager from "@core/RenderManager"
+import AsyncPreloader from "async-preloader"
+import WebGLLoader from "./three/ThreeLoader"
+import BaseRender from "./BaseRender"
+import SceneManager from "@core/SceneManager"
 
-export default class ThreeRenderManager extends RenderManager {
-  private app: App
+export default class ThreeRender extends BaseRender {
   private readonly debug: boolean = true
+
+  // Compositions
+  private sceneManager: SceneManager
+  public trackball: TrackballControls
+
+  // Three components
   private scene: Scene
   private camera: PerspectiveCamera
-  private clock: Clock
-  private object3D: Mesh<IcosahedronBufferGeometry, ShaderMaterial>
-  private manager: LoadingManager
-  private loader: WebGLLoader
+  public renderer: WebGLRenderer
   private composer: any
+  private clock: Clock
+
+  // Configuration
   private fovHeight: number
   private fovWidth: number
 
-  public renderer: WebGLRenderer
-  public trackball: TrackballControls
-
-  constructor(app: App) {
+  constructor(sceneManager: SceneManager) {
     super()
 
-    this.app = app
+    this.sceneManager = sceneManager
 
     // Init steps
     this.initThree()
@@ -52,8 +53,6 @@ export default class ThreeRenderManager extends RenderManager {
   }
 
   initThree(): void {
-    this.scene = new Scene()
-
     this.camera = new PerspectiveCamera(
       50,
       window.innerWidth / window.innerHeight,
@@ -68,6 +67,7 @@ export default class ThreeRenderManager extends RenderManager {
   }
 
   initControls(): void {
+    window.addEventListener("keyup", this.keyup.bind(this))
     /*this.trackball = new TrackballControls(
       this.camera,
       this.renderer.domElement
@@ -171,7 +171,6 @@ export default class ThreeRenderManager extends RenderManager {
   // ---------------------------------------------------------------------------------------------
   // EVENT HANDLERS
   // ---------------------------------------------------------------------------------------------
-
   resize(vw: number, vh: number): void {
     if (!this.renderer) return
     this.camera.aspect = vw / vh
@@ -187,5 +186,12 @@ export default class ThreeRenderManager extends RenderManager {
 
     if (this.composer) this.composer.setSize(vw, vh)
     if (this.trackball) this.trackball.handleResize()
+  }
+
+  keyup(e: KeyboardEvent): void {
+    // h
+    if (e.keyCode == 72) {
+      if (this.trackball) this.trackball.reset()
+    }
   }
 }

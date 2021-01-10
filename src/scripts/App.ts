@@ -1,4 +1,4 @@
-import ThreeRenderManager from "@core/render/ThreeRenderManager"
+import { Render, ThreeRender } from "@core/render"
 import Machine from "@core/machine/Machine"
 
 import Inputs from "./Inputs"
@@ -7,12 +7,12 @@ import { sceneList } from "./Config"
 import SceneManager from "@core/SceneManager"
 
 export default class App extends SceneManager {
-  private container: HTMLElement
+  private readonly container: HTMLElement
 
   private raf: number
   private handlerAnimate: () => void
 
-  private render: ThreeRenderManager
+  private render: Render
   private gui: GUIView
   private machine: Machine
   private inputs: Inputs
@@ -40,14 +40,14 @@ export default class App extends SceneManager {
 
   async start(): Promise<void> {
     this.current = await this.loadScene()
-    this.render.setScene(this.current)
   }
 
   // ---------------------------------------------------------------------------------------------
   // Initialization
   // ---------------------------------------------------------------------------------------------
   initInputs(): void {
-    this.inputs = new Inputs(this.render.renderer.domElement)
+    this.inputs = new Inputs(this.container)
+
     this.inputs.onJump.subscribe((jump: boolean) => {
       console.log("jump", jump)
     })
@@ -66,8 +66,10 @@ export default class App extends SceneManager {
   }
 
   initRender(): void {
-    this.render = new ThreeRenderManager(this)
-    this.container.appendChild(this.render.renderer.domElement)
+    // ThreeJS rendering
+    const render = new ThreeRender(this)
+    this.render = render
+    this.container.appendChild(render.renderer.domElement)
   }
 
   initPhysics(): void {
@@ -82,7 +84,6 @@ export default class App extends SceneManager {
     this.handlerAnimate = this.animate.bind(this)
 
     window.addEventListener("resize", this.resize.bind(this))
-    window.addEventListener("keyup", this.keyup.bind(this))
   }
 
   // ---------------------------------------------------------------------------------------------
@@ -121,10 +122,6 @@ export default class App extends SceneManager {
     // g or p
     if (e.keyCode == 71 || e.keyCode == 80) {
       if (this.gui) this.gui.toggle()
-    }
-    // h
-    if (e.keyCode == 72) {
-      if (this.render.trackball) this.render.trackball.reset()
     }
   }
 }
