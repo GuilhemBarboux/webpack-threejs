@@ -20,8 +20,8 @@ import {
   VignetteEffect,
 } from "postprocessing"
 import AsyncPreloader from "async-preloader"
-import WebGLLoader from "./three/ThreeLoader"
-import BaseRender from "./BaseRender"
+// import ThreeLoader from "@core/utils/ThreeLoader"
+import BaseRender from "@core/render/BaseRender"
 import SceneManager from "@core/SceneManager"
 
 export default class ThreeRender extends BaseRender {

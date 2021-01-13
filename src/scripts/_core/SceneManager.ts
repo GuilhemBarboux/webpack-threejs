@@ -1,5 +1,5 @@
 import { defaultScene, sceneList } from "@src/scripts/Config"
-import BaseScene from "@core/objects/BaseScene"
+import BaseScene from "@core/objects/scene/BaseScene"
 
 interface SceneItem {
   id: string

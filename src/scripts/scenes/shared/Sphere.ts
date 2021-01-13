@@ -1,5 +1,5 @@
-import BaseMesh from "@core/objects/BaseMesh"
+import BaseObject from "@core/objects/BaseMesh"
 
-class Sphere extends BaseMesh {}
+class Sphere extends BaseObject {}
 
 export default Sphere

@@ -1,5 +1,3 @@
-import CharacterState from "../CharacterState"
+import MachineState from "@core/state/machine/MachineState"
 
-class IdleState extends CharacterState {}
-
-export default IdleState
+export default class IdleState extends MachineState {}
