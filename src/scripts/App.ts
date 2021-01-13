@@ -1,10 +1,12 @@
 import { Render, ThreeRender } from "@core/render"
-import Machine from "@core/machine/Machine"
+import ThreeLoader from "@core/utils/ThreeLoader"
 
 import Inputs from "./Inputs"
 import GUIView from "./gui/GUIView"
 import { sceneList } from "./Config"
 import SceneManager from "@core/SceneManager"
+import AsyncPreloader from "async-preloader"
+import { LoadingManager } from "three"
 
 export default class App extends SceneManager {
   private readonly container: HTMLElement
@@ -14,7 +16,6 @@ export default class App extends SceneManager {
 
   private render: Render
   private gui: GUIView
-  private machine: Machine
   private inputs: Inputs
 
   constructor() {
@@ -24,7 +25,6 @@ export default class App extends SceneManager {
     this.container = document.querySelector(".container")
 
     // Core
-    this.initMachine()
     this.initRender()
     this.initPhysics()
     this.initGUI()
@@ -61,12 +61,15 @@ export default class App extends SceneManager {
     })
   }
 
-  initMachine(): void {
-    this.machine = new Machine()
-  }
-
   initRender(): void {
-    // ThreeJS rendering
+    // Update manager for three loader
+    const manager = new LoadingManager()
+    manager.setURLModifier((url: string) => {
+      return URL.createObjectURL(AsyncPreloader.items.get(url))
+    })
+    ThreeLoader.setManager(manager)
+
+    // Create rendering
     const render = new ThreeRender(this)
     this.render = render
     this.container.appendChild(render.renderer.domElement)

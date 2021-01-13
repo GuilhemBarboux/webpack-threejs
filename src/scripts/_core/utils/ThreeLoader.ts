@@ -8,24 +8,30 @@ enum LoaderType {
 }
 
 export default class ThreeLoader {
-  private readonly manager: LoadingManager
-  private readonly loaders: { [index: string]: Loader } = {}
+  private static manager: LoadingManager = new LoadingManager()
+  private static loaders: { [index: string]: Loader } = {}
 
-  constructor(manager = new LoadingManager()) {
-    this.manager = manager
+  public static setManager(m: LoadingManager): void {
+    this.manager = m
   }
 
-  async loadFBX(source = "", onProgress?: () => void): Promise<Group> {
+  public static async loadFBX(
+    source = "",
+    onProgress?: () => void
+  ): Promise<Group> {
     const loader = await this.getLoader(LoaderType.FBX)
     return loader.loadAsync(source, onProgress)
   }
 
-  async loadGLTF(source = "", onProgress?: () => void): Promise<GLTF> {
+  public static async loadGLTF(
+    source = "",
+    onProgress?: () => void
+  ): Promise<GLTF> {
     const loader = await this.getLoader(LoaderType.GLTF)
     return loader.loadAsync(source, onProgress)
   }
 
-  async getLoader(type: LoaderType): Promise<Loader> {
+  private static async getLoader(type: LoaderType): Promise<Loader> {
     if (!this.loaders[type]) {
       const loaderImport = await import(type)
       this.loaders[type] = new loaderImport(this.manager)

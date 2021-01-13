@@ -1,17 +1,17 @@
-import BaseScene from "@core/objects/BaseScene"
 import { HemisphereLight } from "three"
 
-class Scene1 extends BaseScene {
-  async load() {
+import BaseObject from "@core/types/BaseObject"
+import ThreeLoader from "@core/utils/ThreeLoader"
+
+class Scene1 implements BaseObject {
+  async load(): Promise<void> {
     await this.addLights()
     await this.addObjects()
   }
-  update() {}
 
   // ---------------------------------------------------------------------------------------------
   // OBJECTS
   // ---------------------------------------------------------------------------------------------
-
   async addLights() {
     const hemiLight = new HemisphereLight(0xffffff, 0x444444)
     hemiLight.position.set(0, 200, 0)
@@ -19,10 +19,13 @@ class Scene1 extends BaseScene {
   }
 
   async addObjects() {
-    const loader = BaseScene.getLoader()
-    const boombox = await loader.loadGLTF("boombox")
+    const boombox = await ThreeLoader.loadGLTF("boombox")
     this.add(boombox.scene)
   }
+
+  updatePhysic(): void {}
+
+  updateRender(): void {}
 }
 
 export default Scene1
