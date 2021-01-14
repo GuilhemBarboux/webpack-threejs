@@ -3,11 +3,8 @@ import {
   PerspectiveCamera,
   WebGLRenderer,
   Clock,
-  IcosahedronBufferGeometry,
-  ShaderMaterial,
-  Mesh,
-  LoadingManager,
   HalfFloatType,
+  LoadingManager,
 } from "three"
 // import glslify from "glslify"
 import { TrackballControls } from "three/examples/jsm/controls/TrackballControls.js"
@@ -23,6 +20,7 @@ import AsyncPreloader from "async-preloader"
 // import ThreeLoader from "@core/utils/ThreeLoader"
 import BaseRender from "@core/render/BaseRender"
 import SceneManager from "@core/SceneManager"
+import ThreeLoader from "@core/utils/ThreeLoader"
 
 export default class ThreeRender extends BaseRender {
   private readonly debug: boolean = true
@@ -48,8 +46,17 @@ export default class ThreeRender extends BaseRender {
     this.sceneManager = sceneManager
 
     // Init steps
+    this.initLoader()
     this.initThree()
     this.initControls()
+  }
+
+  initLoader(): void {
+    const manager = new LoadingManager()
+    manager.setURLModifier((url: string) => {
+      return URL.createObjectURL(AsyncPreloader.items.get(url))
+    })
+    ThreeLoader.setManager(manager)
   }
 
   initThree(): void {

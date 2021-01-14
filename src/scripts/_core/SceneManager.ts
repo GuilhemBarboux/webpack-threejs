@@ -1,23 +1,23 @@
-import { defaultScene, sceneList } from "@src/scripts/Config"
-import BaseScene from "@core/objects/scene/BaseScene"
+import { sceneList } from "@src/scripts/Config"
+import IObject from "@core/types/BaseObject"
 
 interface SceneItem {
   id: string
   path: string
   import?: any
-  instance?: BaseScene
+  instance?: IObject
 }
 
 class SceneManager {
-  private currentScene: BaseScene
+  private currentScene: IObject
   private readonly scenes: Map<string, SceneItem> = new Map<string, SceneItem>()
   private readonly defaultSceneId: string
 
-  get current(): BaseScene {
+  get current(): IObject {
     return this.currentScene
   }
 
-  set current(s: BaseScene) {
+  set current(s: IObject) {
     this.currentScene = s
   }
 
@@ -36,7 +36,7 @@ class SceneManager {
     )
   }
 
-  async loadScene(id = this.defaultSceneId, reset = false): Promise<BaseScene> {
+  async loadScene(id = this.defaultSceneId, reset = false): Promise<IObject> {
     if (!this.scenes[id]) return // TODO: Throw error, scene not config
 
     if (!this.scenes[id].import) {
@@ -47,7 +47,7 @@ class SceneManager {
 
     if (!this.scenes[id].instance || reset) {
       delete this.scenes[id]
-      this.scenes[id] = <BaseScene>this.scenes[id].import.default()
+      this.scenes[id] = <IObject>this.scenes[id].import.default()
     }
 
     return this.scenes[id]

@@ -1,9 +1,9 @@
 import { HemisphereLight } from "three"
 
-import BaseObject from "@core/types/BaseObject"
+import IObject from "@core/types/BaseObject"
 import ThreeLoader from "@core/utils/ThreeLoader"
 
-class Scene1 implements BaseObject {
+class Scene1 implements IObject {
   async load(): Promise<void> {
     await this.addLights()
     await this.addObjects()

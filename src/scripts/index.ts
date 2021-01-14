@@ -12,7 +12,9 @@ const preload = () => {
   const items = manifest.items
 
   const pItems = items.map((item: any) => AsyncPreloader.loadItem(item))
-  const pApp = import(/* webpackChunkName: 'app' */ "./App")
+  const pApp = import(
+    /* webpackChunkName: 'app' */ /* webpackPreload: true */ "./App"
+  )
   const pProgress = [pApp, ...pItems]
 
   // Progress

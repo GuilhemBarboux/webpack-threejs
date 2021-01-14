@@ -1,12 +1,13 @@
-import { LoadingManager, Scene } from "three"
-import { IRenderObject } from "@core/render"
-import AsyncPreloader from "async-preloader"
+import IObject from "@core/types/IObject"
+import IScene from "@core/types/IScene"
+import BaseObject from "@core/objects/BaseObject"
 
-abstract class BaseScene extends Scene implements
-  {
-  abstract load(): Promise<vo>
+export default class BaseScene<SceneType, WorldType>
+  extends BaseObject<SceneType, WorldType>
+  implements IScene {
+  public children: IObject[] = []
 
-  abstract updateRender(): void
+  public add(...children: IObject[]): void {
+    this.children.push(...children)
+  }
 }
-
-export default BaseScene

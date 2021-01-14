@@ -1,12 +1,9 @@
-import { Render, ThreeRender } from "@core/render"
-import ThreeLoader from "@core/utils/ThreeLoader"
+import SceneManager from "@core/SceneManager"
+import { ThreeRender } from "@core/render"
 
 import Inputs from "./Inputs"
 import GUIView from "./gui/GUIView"
 import { sceneList } from "./Config"
-import SceneManager from "@core/SceneManager"
-import AsyncPreloader from "async-preloader"
-import { LoadingManager } from "three"
 
 export default class App extends SceneManager {
   private readonly container: HTMLElement
@@ -14,7 +11,7 @@ export default class App extends SceneManager {
   private raf: number
   private handlerAnimate: () => void
 
-  private render: Render
+  private render: ThreeRender
   private gui: GUIView
   private inputs: Inputs
 
@@ -23,6 +20,9 @@ export default class App extends SceneManager {
 
     // Html
     this.container = document.querySelector(".container")
+
+    // Handlers
+    this.handlerAnimate = this.animate.bind(this)
 
     // Core
     this.initRender()
@@ -62,17 +62,8 @@ export default class App extends SceneManager {
   }
 
   initRender(): void {
-    // Update manager for three loader
-    const manager = new LoadingManager()
-    manager.setURLModifier((url: string) => {
-      return URL.createObjectURL(AsyncPreloader.items.get(url))
-    })
-    ThreeLoader.setManager(manager)
-
-    // Create rendering
-    const render = new ThreeRender(this)
-    this.render = render
-    this.container.appendChild(render.renderer.domElement)
+    this.render = new ThreeRender(this)
+    this.container.appendChild(this.render.renderer.domElement)
   }
 
   initPhysics(): void {
@@ -84,8 +75,6 @@ export default class App extends SceneManager {
   }
 
   initListeners(): void {
-    this.handlerAnimate = this.animate.bind(this)
-
     window.addEventListener("resize", this.resize.bind(this))
   }
 
