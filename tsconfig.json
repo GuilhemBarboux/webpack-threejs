@@ -16,7 +16,9 @@
     "baseUrl": "./",
     "paths": {
       "@core/*": ["src/scripts/_core/*"],
-      "@src/*": ["src/*"]
+      "@src/*": ["src/*"],
+      "@scenes/*": ["src/scripts/scenes/*"],
+      "@config": ["src/scripts/Config"]
     }
   },
   "exclude": [

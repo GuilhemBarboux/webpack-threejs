@@ -1,24 +1,32 @@
 import { sceneList } from "@src/scripts/Config"
-import IObject from "@core/types/BaseObject"
+import { Observable, Subject } from "rxjs"
+import { sceneType } from "@src/scripts/Config"
+import Intro from "@scenes/Intro"
 
 interface SceneItem {
   id: string
   path: string
   import?: any
-  instance?: IObject
+  instance?: sceneType
 }
 
-class SceneManager {
-  private currentScene: IObject
+export default class SceneManager {
+  private currentScene: sceneType
   private readonly scenes: Map<string, SceneItem> = new Map<string, SceneItem>()
   private readonly defaultSceneId: string
+  private readonly onUpdate: Subject<sceneType> = new Subject<sceneType>()
 
-  get current(): IObject {
+  get onSceneChange(): Observable<sceneType> {
+    return this.onUpdate.asObservable()
+  }
+
+  get current(): sceneType {
     return this.currentScene
   }
 
-  set current(s: IObject) {
+  set current(s: sceneType) {
     this.currentScene = s
+    this.onUpdate.next(s)
   }
 
   get list(): Map<string, SceneItem> {
@@ -36,22 +44,21 @@ class SceneManager {
     )
   }
 
-  async loadScene(id = this.defaultSceneId, reset = false): Promise<IObject> {
-    if (!this.scenes[id]) return // TODO: Throw error, scene not config
+  async loadScene(id = this.defaultSceneId, reset = false): Promise<sceneType> {
+    const loadScene = this.scenes.get(id)
 
-    if (!this.scenes[id].import) {
-      this.scenes[id].import = await import(
-        /* webpackMode: "lazy-once" */ `${sceneList[id]}`
+    if (!loadScene) return // TODO: Throw error, scene not config
+
+    if (!loadScene.import) {
+      loadScene.import = await import(
+        /* webpackMode: "lazy-once" */ `@scenes/${sceneList[id]}`
       )
     }
 
-    if (!this.scenes[id].instance || reset) {
-      delete this.scenes[id]
-      this.scenes[id] = <IObject>this.scenes[id].import.default()
+    if (!loadScene.instance || reset) {
+      loadScene.instance = <sceneType>new loadScene.import.default()
     }
 
-    return this.scenes[id]
+    return loadScene.instance
   }
 }
-
-export default SceneManager

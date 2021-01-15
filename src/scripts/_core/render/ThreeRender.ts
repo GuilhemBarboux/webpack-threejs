@@ -4,7 +4,14 @@ import {
   WebGLRenderer,
   Clock,
   HalfFloatType,
+  Mesh,
   LoadingManager,
+  IcosahedronBufferGeometry,
+  ShaderMaterial,
+  Color,
+  HemisphereLight,
+  DirectionalLight,
+  MeshBasicMaterial,
 } from "three"
 // import glslify from "glslify"
 import { TrackballControls } from "three/examples/jsm/controls/TrackballControls.js"
@@ -44,6 +51,9 @@ export default class ThreeRender extends BaseRender {
     super()
 
     this.sceneManager = sceneManager
+    this.sceneManager.onSceneChange.subscribe((scene) => {
+      this.onSceneChange(scene.object3D)
+    })
 
     // Init steps
     this.initLoader()
@@ -75,15 +85,15 @@ export default class ThreeRender extends BaseRender {
 
   initControls(): void {
     window.addEventListener("keyup", this.keyup.bind(this))
-    /*this.trackball = new TrackballControls(
+    this.trackball = new TrackballControls(
       this.camera,
       this.renderer.domElement
     )
     this.trackball.rotateSpeed = 2.0
-    this.trackball.enabled = true*/
+    this.trackball.enabled = true
   }
 
-  setScene(scene: Scene = new Scene()): void {
+  onSceneChange(scene: Scene = new Scene()): void {
     this.scene = scene
     this.composer = new EffectComposer(this.renderer, {
       frameBufferType: HalfFloatType,
@@ -113,66 +123,20 @@ export default class ThreeRender extends BaseRender {
     this.composer.addPass(effectPass)
   }
 
-  /*async loadScene() {
-    // Geometry
-    const geometry = new IcosahedronBufferGeometry(2, 1)
-
-    const material = new ShaderMaterial({
-      uniforms: {
-        uColor: { value: new Color(0.2, 0.2, 1) },
-      },
-      vertexShader: glslify(require("../../shaders/default.vert")),
-      fragmentShader: glslify(require("../../shaders/default.frag")),
-      wireframe: true,
-    })
-    this.object3D = new Mesh(geometry, material)
-    this.object3D.position.set(-25, 0, 0)
-
-    // Lights
-    const hemiLight = new HemisphereLight(0xffffff, 0x444444)
-    hemiLight.position.set(0, 200, 0)
-
-    const dirLight = new DirectionalLight(0xffffff)
-    dirLight.position.set(0, 200, 100)
-    dirLight.castShadow = true
-    dirLight.shadow.camera.top = 180
-    dirLight.shadow.camera.bottom = -100
-    dirLight.shadow.camera.left = -120
-    dirLight.shadow.camera.right = 120
-
-    // Model Loader
-    this.manager = new LoadingManager()
-    this.manager.setURLModifier((url: string) => {
-      if (this.debug) console.log("Manager", "load :", url)
-      return URL.createObjectURL(AsyncPreloader.items.get(url))
-    })
-    this.loader = new ModelLoader(this.manager)
-
-    // FBX model
-    const fbx = await this.loader.loadFBX("goal-model")
-    fbx.scale.set(2, 2, 2)
-    fbx.position.set(25, 0, 0)
-
-    // GLTF model
-    const gltf = await this.loader.loadGLTF("boombox")
-    gltf.scene.scale.set(100, 100, 100)
-
-    this.scene.add(this.object3D, fbx, gltf.scene, hemiLight, dirLight)
-  }*/
-
   // ---------------------------------------------------------------------------------------------
   // PUBLIC
   // ---------------------------------------------------------------------------------------------
 
   update(): void {
-    // if (this.trackball) this.trackball.update()
+    if (this.trackball) this.trackball.update()
   }
 
   draw(): void {
-    const delta = this.clock.getDelta()
-
-    if (this.composer && this.composer.enabled) this.composer.render(delta)
-    else this.renderer.render(this.scene, this.camera)
+    if (this.scene) {
+      const delta = this.clock.getDelta()
+      if (this.composer && this.composer.enabled) this.composer.render(delta)
+      else this.renderer.render(this.scene, this.camera)
+    }
   }
 
   // ---------------------------------------------------------------------------------------------

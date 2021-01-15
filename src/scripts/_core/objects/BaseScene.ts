@@ -7,7 +7,11 @@ export default class BaseScene<SceneType, WorldType>
   implements IScene {
   public children: IObject[] = []
 
-  public add(...children: IObject[]): void {
-    this.children.push(...children)
+  public updatePhysic(): void {
+    this.children.forEach((c) => c.updatePhysic())
+  }
+
+  public updateRender(): void {
+    this.children.forEach((c) => c.updateRender())
   }
 }

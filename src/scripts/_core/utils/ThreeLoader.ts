@@ -33,7 +33,9 @@ export default class ThreeLoader {
 
   private static async getLoader(type: LoaderType): Promise<Loader> {
     if (!this.loaders[type]) {
-      const loaderImport = await import(type)
+      const loaderImport = await import(
+        /* webpackMode: "lazy-once" */ `${type}`
+      )
       this.loaders[type] = new loaderImport(this.manager)
     }
 

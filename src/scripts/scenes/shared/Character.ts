@@ -1,10 +1,20 @@
 import Machine from "@core/state/machine/Machine"
-import { Object3D } from "three"
+import BaseObject from "@core/objects/BaseObject"
+import { BoxBufferGeometry, Mesh, MeshBasicMaterial } from "three"
+import { Body } from "cannon-es"
 
-class Character extends Object3D {
-  private readonly machine: Machine
+export default class Character extends BaseObject<Mesh, Body> {
+  public readonly machine: Machine
 
   constructor() {
-    super()
+    const mesh = new Mesh(
+      new BoxBufferGeometry(1, 1, 1),
+      new MeshBasicMaterial({ color: 0xffff00 })
+    )
+    const body = new Body()
+
+    super(mesh, body)
+
+    this.machine = new Machine()
   }
 }

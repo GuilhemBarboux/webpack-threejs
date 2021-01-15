@@ -77,7 +77,8 @@ module.exports = {
     alias: {
       "@src": path.resolve(__root, "src/"),
       "@core": path.resolve(__root, "src/scripts/_core/"),
-      "@scenes": path.resolve(__root, "src/scripts/scenes/")
+      "@scenes": path.resolve(__root, "src/scripts/scenes/"),
+      "@config": path.resolve(__root, "src/scripts/Config")
     },
     plugins: [
       new TsconfigPathsPlugin(),

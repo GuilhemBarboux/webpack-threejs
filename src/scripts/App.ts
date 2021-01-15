@@ -3,13 +3,13 @@ import { ThreeRender } from "@core/render"
 
 import Inputs from "./Inputs"
 import GUIView from "./gui/GUIView"
-import { sceneList } from "./Config"
+import { sceneList } from "@config"
 
 export default class App extends SceneManager {
   private readonly container: HTMLElement
+  private readonly handlerAnimate: () => void
 
   private raf: number
-  private handlerAnimate: () => void
 
   private render: ThreeRender
   private gui: GUIView
@@ -28,7 +28,7 @@ export default class App extends SceneManager {
     this.initRender()
     this.initPhysics()
     this.initGUI()
-    this.initInputs()
+    // this.initInputs()
 
     // Others
     this.initListeners()
@@ -90,7 +90,11 @@ export default class App extends SceneManager {
 
   update(): void {
     // if (this.machine) this.machine.currentState.onUpdate()
-    if (this.current) this.current.update()
+    if (this.current) {
+      this.current.updatePhysic()
+      this.current.updateRender()
+    }
+
     if (this.gui.stats) this.gui.stats.begin()
     if (this.render) this.render.update()
   }

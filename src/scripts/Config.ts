@@ -1,18 +1,14 @@
+import BaseScene from "@core/objects/BaseScene"
+import { Scene } from "three"
+import { World } from "cannon-es"
+
 // ---------------------------------------------------------------------------------------------
 // Scenes
 // ---------------------------------------------------------------------------------------------
-const sceneList: { [index: string]: string } = {
-  scene1: "@scenes/scene1",
+export type sceneType = BaseScene<Scene, World>
+
+export const sceneList: { [index: string]: string } = {
+  intro: "Intro",
 }
 
-const defaultScene = Object.keys(sceneList)[0]
-
-// ---------------------------------------------------------------------------------------------
-// Config
-// ---------------------------------------------------------------------------------------------
-export default {
-  defaultScene,
-  sceneList,
-}
-
-export { sceneList, defaultScene }
+export const defaultScene = Object.keys(sceneList)[0]

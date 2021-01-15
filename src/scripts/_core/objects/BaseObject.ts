@@ -1,12 +1,12 @@
 import IObject from "@core/types/IObject"
 
-export default class BaseObject<MeshType, BodyType> implements IObject {
+export default class BaseObject<Object3DType, BodyType> implements IObject {
   public readonly isStatic: boolean = true
+  public readonly object3D: Object3DType
   public readonly body: BodyType
-  public readonly mesh: MeshType
 
-  constructor(mesh: MeshType, body?: BodyType) {
-    this.mesh = mesh
+  constructor(object3D: Object3DType, body?: BodyType) {
+    this.object3D = object3D
     this.body = body
     this.isStatic = !this.body
   }
